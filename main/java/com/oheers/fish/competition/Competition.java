@@ -141,7 +141,7 @@ public class Competition {
                         entry.incrementValue();
                         leaderboard.addEntry(entry);
                     } catch (Exception exception) {
-                        Bukkit.getLogger().log(Level.SEVERE, "Could not delete: " + entry);
+                        Bukkit.getLogger().log(Level.SEVERE, "无法删除 " + entry);
                     }
 
                     if (entry.getValue() == numberNeeded && competitionType == CompetitionType.SPECIFIC_FISH) {
@@ -359,7 +359,7 @@ public class Competition {
             this.selectedFish = fish.get(r.nextInt(fish.size()));
             return true;
         } catch (IllegalArgumentException exception) {
-            Bukkit.getLogger().log(Level.SEVERE, "Could not load: " + competitionName + " because a random fish could not chose. \nIf you need support, please provide the following information:");
+            Bukkit.getLogger().log(Level.SEVERE, "无法加载： " + competitionName + " because a random fish could not chose. \nIf you need support, please provide the following information:");
             Bukkit.getLogger().log(Level.SEVERE, "fish.size(): " + fish.size());
             Bukkit.getLogger().log(Level.SEVERE, "allowedRarities.size(): " + allowedRarities.size());
             return false;
@@ -464,7 +464,7 @@ public class Competition {
         try {
             this.statusBar.setColour(BarColor.valueOf(EvenMoreFish.competitionConfig.getBarColour(competionName)));
         } catch (IllegalArgumentException iae) {
-            Bukkit.getLogger().log(Level.SEVERE, EvenMoreFish.competitionConfig.getBarColour(competionName) + " is not a valid bossbar colour, check ");
+            Bukkit.getLogger().log(Level.SEVERE, EvenMoreFish.competitionConfig.getBarColour(competionName) + " 不是有效的BossBar颜色，请检查。 ");
         }
 
         this.statusBar.setPrefix(FishUtils.translateHexColorCodes(EvenMoreFish.competitionConfig.getBarPrefix(competionName)));

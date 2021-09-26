@@ -26,7 +26,7 @@ public class Reward {
         String[] split = value.split(":");
 
         if (split.length < 2) {
-            Bukkit.getLogger().log(Level.WARNING, value + " is not formatted correctly. It won't be given as a reward");
+            Bukkit.getLogger().log(Level.WARNING, value + " 格式不正确，不会作为奖励给你。");
             this.type = RewardType.BAD_FORMAT;
         } else {
             try {
@@ -92,7 +92,7 @@ public class Reward {
                 Bukkit.getPluginManager().callEvent(event);
                 break;
             default:
-                Bukkit.getLogger().log(Level.SEVERE, "Error in loading a reward.");
+                Bukkit.getLogger().log(Level.SEVERE, "加载奖励时出错");
         }
     }
 

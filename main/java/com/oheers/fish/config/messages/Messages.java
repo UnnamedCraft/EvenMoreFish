@@ -46,7 +46,7 @@ public class Messages {
     public String getCompetitionJoin() {
         String returning = config.getString("contest-join");
         if (returning != null) return getSTDPrefix() + returning;
-        else return getSTDPrefix() + "&rA fishing contest for {type} is going on.";
+        else return getSTDPrefix() + "&r一场{type}的钓鱼比赛正在进行。";
     }
 
     public int getLeaderboardCount() {
@@ -61,14 +61,14 @@ public class Messages {
                 return getSTDPrefix() + config.getString("leaderboard");
             }
         }
-        return "&r#{position} | {pos_colour}{player} &r({rarity} {fish}&r, {length}cm)";
+        return "&r#{position} | {pos_colour}{player} &r({rarity} {fish}&r, {length}厘米)";
     }
 
     public String getMostFishLeaderboard() {
         if (config.getString("leaderboard-most-fish") != null) {
             return getSTDPrefix() + config.getString("leaderboard-most-fish");
         } else {
-            return "&r#{position} | {pos_colour}{player} &r({pos_colour}{amount} &rfish)";
+            return "&r#{position} | {pos_colour}{player} &r({pos_colour}{amount} &r鱼)";
         }
     }
 
@@ -116,7 +116,7 @@ public class Messages {
     }
 
     public String getReloaded() {
-        return getAdminPrefix() + "successfully reloaded the plugin.";
+        return getAdminPrefix() + "成功重载插件";
     }
 
     public String getFishCaught() {
@@ -128,15 +128,15 @@ public class Messages {
     }
 
     public String notInteger() {
-        return getErrorPrefix() + "Please provide an integer value.";
+        return getErrorPrefix() + "请提供一个整数值";
     }
 
     public String competitionRunning() {
-        return getErrorPrefix() + "There's already a competition running.";
+        return getErrorPrefix() + "比赛已经开始了";
     }
 
     public String competitionNotRunning() {
-        return getErrorPrefix() + "There's no competition running right now.";
+        return getErrorPrefix() + "现在没有竞争对手";
     }
 
     public String getNotEnoughPlayers() {
@@ -154,19 +154,19 @@ public class Messages {
     public String getConfirmSellAllName() {
         String returning = config.getString("confirm-sell-all-gui-name");
         if (returning != null) return returning;
-        else return "&6&lCONFIRM";
+        else return "&6&l确认";
     }
 
     public String getNoValueName() {
         String s = config.getString("error-gui-name");
         if (s != null) return s;
-        else return "&c&lCan't Sell";
+        else return "&c&l卖不出去";
     }
 
     public String getNoValueSellAllName() {
         String s = config.getString("error-sell-all-gui-name");
         if (s != null) return s;
-        else return "&c&lCan't Sell";
+        else return "&c&l卖不出去";
     }
 
     public List<String> sellLore() {
@@ -177,9 +177,9 @@ public class Messages {
         List<String> l = config.getStringList("error-gui-lore");
         if (!l.isEmpty()) return l;
         else {
-            l.add("&c&lValue: &c$0");
-            l.add("&cAdd your caught fish to this.");
-            l.add("&cGUI to sell them.");
+            l.add("&c&l价格: &c$0");
+            l.add("&c放入你钓到的鱼");
+            l.add("&c在GUI中卖掉他们");
             return l;
         }
     }
@@ -188,27 +188,27 @@ public class Messages {
         List<String> l = config.getStringList("error-sell-all-gui-lore");
         if (!l.isEmpty()) return l;
         else {
-            l.add("&c&lValue: &c$0");
-            l.add("&cThere are 0 sellable fish");
-            l.add("&cin your inventory.");
+            l.add("&c&l价格: &c$0");
+            l.add("&c这里没有一条鱼可以卖掉");
+            l.add("&c在你的背包中");
             return l;
         }
     }
 
     public String economyDisabled() {
-        return getErrorPrefix() + "EvenMoreFish's economy features are disabled.";
+        return getErrorPrefix() + "插件的经济功能被禁用";
     }
 
     public String fishCaughtBy() {
         String returning = config.getString("fish-caught-by");
         if (returning != null) return returning;
-        else return "&fCaught by {player}";
+        else return "&f被{player}钓上来了";
     }
 
     public String fishLength() {
         String returning = config.getString("fish-length");
         if (returning != null) return returning;
-        else return "&fMeasures {length}cm";
+        else return "&f长度 {length}厘米";
     }
 
     public String getRemainingWord() {
@@ -224,19 +224,19 @@ public class Messages {
     }
 
     public void disabledInConsole() {
-        Bukkit.getLogger().log(Level.SEVERE, "That command is disabled on the console, use it in-game instead.");
+        Bukkit.getLogger().log(Level.SEVERE, "此命令在后台被禁用，请在游戏中使用");
     }
 
     public String getNoCompPlaceholder() {
         String returning = config.getString("no-competition-running");
         if (returning != null) return returning;
-        else return "No competition running right now.";
+        else return "现在没有进行中的比赛";
     }
 
     public String getNoPlayerInposPlaceholder() {
         String returning = config.getString("no-player-in-place");
         if (returning != null) return returning;
-        else return "Start fishing to take this place";
+        else return "开始在这里钓鱼吧";
     }
 
     public boolean shouldNullPlayerCompPlaceholder() {
@@ -254,7 +254,7 @@ public class Messages {
     public String getFishFormat() {
         String returning = config.getString("emf-competition-fish-format");
         if (returning != null) return returning;
-        else return "{length}cm &l{rarity} {fish}";
+        else return "{length}厘米 &l{rarity} {fish}";
     }
 
     public String getTypeVariable(String sub) {
@@ -292,18 +292,18 @@ public class Messages {
     public String singleWinner() {
         String returning = config.getString("single-winner");
         if (returning != null) return getSTDPrefix() + returning;
-        else return getSTDPrefix() + "&r{player} has won the competition for {type}. Congratulations!";
+        else return getSTDPrefix() + "&r{player} 在 {type} 比赛中获得了冠军，恭喜！";
     }
 
     public String getSellAllName() {
         String returning = config.getString("sell-all-name");
         if (returning != null) return returning;
-        else return "&6&lSELL ALL";
+        else return "&6&l卖掉全部";
     }
 
     public List<String> getSellAllLore() {
         List<String> returning = config.getStringList("sell-all-lore");
         if (returning.size() != 0) return returning;
-        else return Arrays.asList("&e&lValue: &e${sell-price}", "&7LEFT CLICK to sell all fish in your inventory.");
+        else return Arrays.asList("&e&l价格： &e${sell-price}", "&7左键卖掉背包中所有的鱼");
     }
 }
