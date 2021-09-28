@@ -94,7 +94,7 @@ public class FishingProcessor implements Listener {
                     try {
                         competitionCheck(fish.clone(), event.getPlayer());
                     } catch (CloneNotSupportedException e) {
-                        Bukkit.getLogger().log(Level.SEVERE, "Failed to create a clone of: " + fish);
+                        Bukkit.getLogger().log(Level.SEVERE, "创建副本失败: " + fish);
                         e.printStackTrace();
                     }
 
@@ -167,7 +167,7 @@ public class FishingProcessor implements Listener {
 
         // if the config doesn't define any fish that can be fished in this biome.
         if (available.size() == 0) {
-            Bukkit.getLogger().log(Level.WARNING, "There are no fish of the rarity " + r.getValue() + " that can be fished in the " + b.name() + " biome.");
+            Bukkit.getLogger().log(Level.WARNING, "在 " + b.name() + " 生物群系中没有稀有度为 " + r.getValue() + " 的鱼可供垂钓。");
             return defaultFish();
         }
 
@@ -177,7 +177,7 @@ public class FishingProcessor implements Listener {
 
     // if there's no fish available in the current biome, this gets sent out
     private static Fish defaultFish() {
-        Rarity r = new Rarity("No biome found", "&4", 1.0d, false, null);
+        Rarity r = new Rarity("未找到生物群系", "&4", 1.0d, false, null);
         return new Fish(r, "");
     }
 

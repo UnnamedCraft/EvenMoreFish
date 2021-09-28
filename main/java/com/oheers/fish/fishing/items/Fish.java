@@ -154,7 +154,7 @@ public class Fish implements Cloneable {
         String mValue = EvenMoreFish.fishFile.getConfig().getString("fish." + this.rarity.getValue() + "." + this.name + ".item.material");
         if (mValue != null) {
             if (Material.getMaterial(mValue) == null) {
-                Bukkit.getLogger().log(Level.WARNING, this.name + " has failed to load material: " + mValue);
+                Bukkit.getLogger().log(Level.WARNING, this.name + " 无法加载材料: " + mValue);
             }
             return new ItemStack(Objects.requireNonNull(Material.getMaterial(mValue.toUpperCase())));
         }
@@ -201,9 +201,9 @@ public class Fish implements Cloneable {
             Objects.requireNonNull(Bukkit.getPlayer(this.fisherman)).addPotionEffect(new PotionEffect(effect, time, amplitude));
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
-            Bukkit.getServer().getLogger().log(Level.SEVERE, "ATTENTION! There was an error adding the effect from the " + this.name + " fish.");
-            Bukkit.getServer().getLogger().log(Level.SEVERE, "ATTENTION! Check your config files and ensure spelling of the effect name is correct.");
-            Bukkit.getServer().getLogger().log(Level.SEVERE, "ATTENTION! If the problem persists, ask for help on the support discord server.");
+            Bukkit.getServer().getLogger().log(Level.SEVERE, "注意! 在为 " + this.name + " 鱼添加效果时出错了。");
+            Bukkit.getServer().getLogger().log(Level.SEVERE, "注意! 检查你的配置文件并确保效果名称的拼写无误。");
+            Bukkit.getServer().getLogger().log(Level.SEVERE, "注意! 如果这个问题依然存在，在 Discord 支持服务器上寻求帮助。");
         }
 
     }
