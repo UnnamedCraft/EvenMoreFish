@@ -131,7 +131,7 @@ public class FishUtils {
                     return false;
                 } else {
                     // the user has defined a region whitelist but doesn't have a region plugin.
-                    Bukkit.getLogger().log(Level.WARNING, "Please install WorldGuard or RedProtect to enable region-specific fishing.");
+                    Bukkit.getLogger().log(Level.WARNING, "请安装 WorldGuard 或 RedProtect 以启用按区域设置的钓鱼。");
                     return true;
                 }
             }
