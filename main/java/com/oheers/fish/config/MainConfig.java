@@ -121,7 +121,7 @@ public class MainConfig {
             try {
                 return Material.valueOf(s);
             } catch (IllegalArgumentException exception) {
-                Bukkit.getLogger().log(Level.SEVERE, s + " is not a valid material type in config.yml gui.sell-all-item.");
+                Bukkit.getLogger().log(Level.SEVERE, s + " 在 config.yml gui.sell-all-item 中不是一个有效的材料类型。");
             }
         }
         return Material.COD_BUCKET;
@@ -133,7 +133,7 @@ public class MainConfig {
             try {
                 return Material.valueOf(s);
             } catch (IllegalArgumentException exception) {
-                Bukkit.getLogger().log(Level.SEVERE, s + " is not a valid material type in config.yml gui.sell-all-item-confirm.");
+                Bukkit.getLogger().log(Level.SEVERE, s + " 在 config.yml gui.sell-all-item-confirm 中不是一个有效的材料类型。");
             }
         }
         return Material.TROPICAL_FISH_BUCKET;
@@ -145,7 +145,7 @@ public class MainConfig {
             try {
                 return Material.valueOf(s);
             } catch (IllegalArgumentException exception) {
-                Bukkit.getLogger().log(Level.SEVERE, s + " is not a valid material type in config.yml gui.sell-all-item-confirm.");
+                Bukkit.getLogger().log(Level.SEVERE, s + " 在 config.yml gui.sell-all-item-confirm 中不是一个有效的材料类型。");
             }
         }
         return Material.SALMON_BUCKET;
