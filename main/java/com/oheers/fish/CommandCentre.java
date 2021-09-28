@@ -223,7 +223,7 @@ class Controls{
 
                             for (Fish fish : EvenMoreFish.fishCollection.get(r)) {
                                 BaseComponent tC = new TextComponent(FishUtils.translateHexColorCodes(r.getColour() + "[" + fish.getName() + "] "));
-                                tC.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, TextComponent.fromLegacyText("Click to receive fish"))); // The only element of the hover events basecomponents is the item json
+                                tC.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, TextComponent.fromLegacyText("点击来获得一条鱼"))); // The only element of the hover events basecomponents is the item json
                                 tC.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/emf admin fish " + fish.getRarity().getValue() + " " + fish.getName()));
                                 baseComponent.addExtra(tC);
                             }
@@ -272,7 +272,7 @@ class Controls{
                     BaseComponent baseComponent = new TextComponent("");
                     for (Rarity r : EvenMoreFish.fishCollection.keySet()) {
                         BaseComponent tC = new TextComponent(FishUtils.translateHexColorCodes(r.getColour() + "[" + r.getValue() + "] "));
-                        tC.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("Click to view " + r.getValue() + " fish."))); // The only element of the hover events basecomponents is the item json
+                        tC.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("点击来查看 " + r.getValue() + " 鱼。"))); // The only element of the hover events basecomponents is the item json
                         tC.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/emf admin fish " + r.getValue()));
                         baseComponent.addExtra(tC);
                     }
@@ -387,17 +387,17 @@ class Help {
     // puts values into the command dictionaries for later use in /emf help and what not
     public static void loadValues() {
 
-        cmdDictionary.put("emf admin", "Admin command help page.");
-        cmdDictionary.put("emf help", "Shows you this page.");
-        cmdDictionary.put("emf shop", "Opens a shop to sell your fish.");
-        cmdDictionary.put("emf top", "Shows an ongoing competition's leaderboard.");
+        cmdDictionary.put("emf admin", "管理员指令帮助页面。");
+        cmdDictionary.put("emf help", "将这个页面展示给你。");
+        cmdDictionary.put("emf shop", "开启一个商店来售卖你的鱼。");
+        cmdDictionary.put("emf top", "显示正在进行的比赛的排行榜。");
 
-        adminDictionary.put("emf admin competition <start/end> <time(seconds)>", "Starts or stops a competition");
-        adminDictionary.put("emf admin reload", "Reloads the plugin's config files");
-        adminDictionary.put("emf admin version", "Displays plugin information.");
+        adminDictionary.put("emf admin competition <start/end> <time(seconds)>", "开始或结束一场比赛");
+        adminDictionary.put("emf admin reload", "重新加载此插件的配置文件");
+        adminDictionary.put("emf admin version", "显示插件信息。");
 
-        compDictionary.put("emf admin competition start <time<seconds>", "Starts a competition of a specified duration");
-        compDictionary.put("emf admin competition end <time<seconds>", "Ends the current competition (if there is one)");
+        compDictionary.put("emf admin competition start <time<seconds>", "开始一场特定时间长度的比赛");
+        compDictionary.put("emf admin competition end <time<seconds>", "（如果有正在进行的比赛的话）结束当前的比赛");
 
         std_help = formString(cmdDictionary);
         admin_help = formString(adminDictionary);
