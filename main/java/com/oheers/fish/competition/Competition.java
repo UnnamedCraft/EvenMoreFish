@@ -359,7 +359,7 @@ public class Competition {
             this.selectedFish = fish.get(r.nextInt(fish.size()));
             return true;
         } catch (IllegalArgumentException exception) {
-            Bukkit.getLogger().log(Level.SEVERE, "无法加载： " + competitionName + " because a random fish could not chose. \nIf you need support, please provide the following information:");
+            Bukkit.getLogger().log(Level.SEVERE, "无法加载: " + competitionName + "，因为无法随机选择一种鱼。\n如果你需要帮助，请提供以下信息:");
             Bukkit.getLogger().log(Level.SEVERE, "fish.size(): " + fish.size());
             Bukkit.getLogger().log(Level.SEVERE, "allowedRarities.size(): " + allowedRarities.size());
             return false;
@@ -374,10 +374,10 @@ public class Competition {
                 try {
                     alertTimes.add(Integer.parseInt(split[0])*60 + Integer.parseInt(split[1]));
                 } catch (NumberFormatException nfe) {
-                    Bukkit.getLogger().log(Level.SEVERE, "Could not turn " + s + " into an alert time. If you need support, feel free to join the discord server: https://discord.gg/Hb9cj3tNbb");
+                    Bukkit.getLogger().log(Level.SEVERE, "无法将 " + s + " 转换为提醒时间。如果你需要帮助，欢迎加入 Discord 服务器: https://discord.gg/Hb9cj3tNbb");
                 }
             } else {
-                Bukkit.getLogger().log(Level.SEVERE, s + " is not formatted correctly. Use MM:SS");
+                Bukkit.getLogger().log(Level.SEVERE, s + " 的格式不正确。请使用 MM:SS 的格式");
             }
         }
     }
@@ -464,7 +464,7 @@ public class Competition {
         try {
             this.statusBar.setColour(BarColor.valueOf(EvenMoreFish.competitionConfig.getBarColour(competionName)));
         } catch (IllegalArgumentException iae) {
-            Bukkit.getLogger().log(Level.SEVERE, EvenMoreFish.competitionConfig.getBarColour(competionName) + " 不是有效的BossBar颜色，请检查。 ");
+            Bukkit.getLogger().log(Level.SEVERE, EvenMoreFish.competitionConfig.getBarColour(competionName) + " 不是有效的 BossBar 颜色，请检查。 ");
         }
 
         this.statusBar.setPrefix(FishUtils.translateHexColorCodes(EvenMoreFish.competitionConfig.getBarPrefix(competionName)));
