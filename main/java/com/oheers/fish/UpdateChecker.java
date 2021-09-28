@@ -28,7 +28,7 @@ public class UpdateChecker {
             version = ((JSONObject) new JSONParser().parse(new Scanner(new URL("https://api.spigotmc.org/simple/0.1/index.php?action=getResource&id=" + resourceID).openStream()).nextLine())).get("current_version").toString();
         } catch (Exception ignored) {
             version = plugin.getDescription().getVersion();
-            Bukkit.getLogger().log(Level.WARNING, "EvenMoreFish failed to check for updates against the spigot website, to check manually go to https://www.spigotmc.org/resources/evenmorefish.91310/updates");
+            Bukkit.getLogger().log(Level.WARNING, "EvenMoreFish 从 Spigot 网站检查更新失败，你可以到 https://www.spigotmc.org/resources/evenmorefish.91310/updates 手动检查更新");
         }
 
         return version;
@@ -42,7 +42,7 @@ class UpdateNotify implements Listener {
     public void playerJoin(PlayerJoinEvent event) {
         if (EvenMoreFish.isUpdateAvailable) {
             if (EvenMoreFish.permission.playerHas(event.getPlayer(), "emf.admin")) {
-                event.getPlayer().sendMessage(FishUtils.translateHexColorCodes(EvenMoreFish.msgs.getAdminPrefix() + "There is an update available: " + "https://www.spigotmc.org/resources/evenmorefish.91310/updates"));
+                event.getPlayer().sendMessage(FishUtils.translateHexColorCodes(EvenMoreFish.msgs.getAdminPrefix() + "更新可用: " + "https://www.spigotmc.org/resources/evenmorefish.91310/updates"));
             }
         }
     }
