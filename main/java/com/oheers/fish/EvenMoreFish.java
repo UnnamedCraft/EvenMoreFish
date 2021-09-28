@@ -92,12 +92,12 @@ public class EvenMoreFish extends JavaPlugin {
         if (mainConfig.isEconomyEnabled()) {
             // could not setup economy.
             if (!setupEconomy()) {
-                Bukkit.getLogger().log(Level.WARNING, "EvenMoreFish won't be hooking into economy. If this wasn't by choice in config.yml, please install Economy handling plugins.");
+                Bukkit.getLogger().log(Level.WARNING, "EvenMoreFish 将不会连接到经济插件。如果你没有在 config.yml 中选择此项，请安装经济处理插件。");
             }
         }
 
         if (!setupPermissions()) {
-            Bukkit.getServer().getLogger().log(Level.SEVERE, "EvenMoreFish couldn't hook into Vault permissions. Disabling to prevent serious problems.");
+            Bukkit.getServer().getLogger().log(Level.SEVERE, "EvenMoreFish 无法连接到财富及财富权限插件。关闭此项以防止出现更严重的问题。");
             getServer().getPluginManager().disablePlugin(this);
         }
 
@@ -142,7 +142,7 @@ public class EvenMoreFish extends JavaPlugin {
 
         }
 
-        getServer().getLogger().log(Level.INFO, "EvenMoreFish by Oheers : Enabled");
+        getServer().getLogger().log(Level.INFO, "EvenMoreFish by Oheers : 已开启");
 
     }
 
@@ -163,7 +163,7 @@ public class EvenMoreFish extends JavaPlugin {
             }
         }
 
-        getServer().getLogger().log(Level.INFO, "EvenMoreFish by Oheers : Disabled");
+        getServer().getLogger().log(Level.INFO, "EvenMoreFish by Oheers : 已关闭");
 
     }
 
@@ -263,23 +263,23 @@ public class EvenMoreFish extends JavaPlugin {
     private void checkConfigVers() {
         int MSG_CONFIG_VERSION = 7;
         if (msgs.configVersion() < MSG_CONFIG_VERSION) {
-            getLogger().log(Level.WARNING, "Your messages.yml config is not up to date. Certain new configurable features may have been added, and without" +
-                    " an updated config, you won't be able to modify them. To update, either delete your messages.yml file and restart the server to create a new" +
-                    " fresh one, or go through the recent updates, adding in missing values. https://www.spigotmc.org/resources/evenmorefish.91310/updates/");
+            getLogger().log(Level.WARNING, "你的 messages.yml 不是最新的。此插件可能已经添加一些新的配置功能，并且如果你没有" +
+                    "最新的配置文件的话，你无法自定义它们。要更新的话，要么删除你的 messages.yml 文件并重启服务器来创建一个全新的，" +
+                    "要么浏览最近的更新，自行添加丢失的部分。https://www.spigotmc.org/resources/evenmorefish.91310/updates/");
         }
 
         int MAIN_CONFIG_VERSION = 7;
         if (mainConfig.configVersion() < MAIN_CONFIG_VERSION) {
-            getLogger().log(Level.WARNING, "Your config.yml config is not up to date. Certain new configurable features may have been added, and without" +
-            " an updated config, you won't be able to modify them. To update, either delete your config.yml file and restart the server to create a new" +
-                    " fresh one, or go through the recent updates, adding in missing values. https://www.spigotmc.org/resources/evenmorefish.91310/updates/");
+            getLogger().log(Level.WARNING, "你的 config.yml 不是最新的。此插件可能已经添加一些新的配置功能，并且如果你没有" +
+                    "最新的配置文件的话，你无法自定义它们。要更新的话，要么删除你的 config.yml 文件并重启服务器来创建一个全新的，" +
+                    "要么浏览最近的更新，自行添加丢失的部分。https://www.spigotmc.org/resources/evenmorefish.91310/updates/");
         }
 
         int COMP_CONFIG_VERSION = 1;
         if (competitionConfig.configVersion() < COMP_CONFIG_VERSION) {
-            getLogger().log(Level.WARNING, "Your competitions.yml config is not up to date. Certain new configurable features may have been added, and without" +
-                    " an updated config, you won't be able to modify them. To update, either delete your competitions.yml file and restart the server to create a new" +
-                    " fresh one, or go through the recent updates, adding in missing values. https://www.spigotmc.org/resources/evenmorefish.91310/updates/");
+            getLogger().log(Level.WARNING, "你的 competitions.yml 不是最新的。此插件可能已经添加一些新的配置功能，并且如果你没有" +
+                    "最新的配置文件的话，你无法自定义它们。要更新的话，要么删除你的 competitions.yml 文件并重启服务器来创建一个全新的，" +
+                    "要么浏览最近的更新，自行添加丢失的部分。https://www.spigotmc.org/resources/evenmorefish.91310/updates/");
         }
     }
 
