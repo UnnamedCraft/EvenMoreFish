@@ -80,6 +80,12 @@ public class FishingProcessor implements Listener {
                         }
                     }
 
+                    if (fish.hasFishRewards()) {
+                        for (Reward fishReward : fish.getFishRewards()) {
+                            fishReward.run(player);
+                        }
+                    }
+
                     // checks if the fish can have durability, and if it's set in the config it receives random durability
                     if (checkBreakable(fish.getType().getType())) fish.randomBreak();
 

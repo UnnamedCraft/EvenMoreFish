@@ -2,40 +2,41 @@ name: Java CI
 
 on:
   push:
-    branches:
-    - master
+    paths:
+      - "main/**"
+      - ".github/workflows/*"
   pull_request:
-    branches:
-    - master
+    paths:
+      - "main/**"
+      - ".github/workflows/*"
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     name: Build plugin
 
     steps:
 
-    - uses: actions/checkout@v2.3.3
+      - uses: actions/checkout@v2.3.3
 
-    - name: Declare Git variables
-      id: vars
-      shell: bash
-      run: |
-        echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-        echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+      - name: Declare Git variables
+        id: vars
+        shell: bash
+        run: |
+          echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+          echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
-    - name: Set up JDK 1.8
-      uses: actions/setup-java@v1.4.3
-      with:
-        java-version: 1.8
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1.4.3
+        with:
+          java-version: 1.8
 
-    - name: Build with Maven
-      run: mvn package --file pom.xml
+      - name: Build with Maven
+        run: mvn package --file pom.xml
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v2.2.4
-      with:
-        name: EvenMoreFish-${{ steps.vars.outputs.branch }}-${{ steps.vars.outputs.sha_short }}
-        path: target/*.jar
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2.2.4
+        with:
+          name: EvenMoreFish-${{ steps.vars.outputs.branch }}-${{ steps.vars.outputs.sha_short }}
+          path: target/*.jar

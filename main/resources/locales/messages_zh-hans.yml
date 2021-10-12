@@ -1,0 +1,156 @@
+# If a message contains EvenMoreFish placeholders, e.g. {player} or {rarity} it also supports placeholderapi placeholders.
+
+# Sent to players when they fish an EvenMoreFish fish
+fish-caught: "&l{player} &r钓了一条长度 {length}cm，稀有度 {rarity} 的 {fish}!"
+# Sent to a player when they don't have permission to execute a command.
+no-permission: "&c你没有权限来执行那个指令。"
+
+# The message to be sent when a competition starts and ends
+contest-start: "&r一场{type}赛开始了。"
+contest-end: "&r钓鱼比赛已结束。"
+# The message to be sent when a player joins whilst a competition is going on
+contest-join: "&r你加入了一场{type}赛。"
+
+# Shown to players when a new player takes #1 spot, remove this value or set it to "" to disable this message
+new-first: "&r{player} 成为了当前的第一名"
+# Should this message appear in chat (false) or above the exp bar (true)
+action-bar-message: true
+# What competition types should the action bar be used for? (recommended: MOST_FISH)
+action-bar-types:
+  - MOST_FISH
+
+# What should replace the {type} variable for each competition type?
+competition-types:
+  # MOST_FISH
+  most: "数量"
+  # LARGEST_FISH
+  largest: "长度"
+  # SPECIFIC_FISH
+  specific: "{amount} {rarity} {fish}&r"
+
+# Segments shown in the bossbar when competitions run
+bossbar:
+  # The abbreviations used for different units of time
+  hour: "时"
+  minute: "分"
+  second: "秒"
+  # For translating the "left" at the end e.g. "5s left" -> "5s kvar"
+  remaining: " 剩余"
+
+# The prefix shown before pretty much all commands to do with the plugin. Keeping the space in is recommended.
+prefix: "[EvenMoreFish] "
+# The colour of the [EvenMoreFish] prefix in commands (for when your prefix doesn't have colours)
+prefix-regular: "&a"
+# The colour of the [EvenMoreFish] prefix in admin commands (for when your prefix doesn't have colours)
+prefix-admin: "&c"
+# The colour of the [EvenMoreFish] prefix when errors occur e.g. no permission to run a command (for when your prefix doesn't have colours)
+prefix-error: "&c"
+
+# The text shown in a fish's lore before who caught the fish
+fish-caught-by: "&f被 {player} 钓到了"
+# The text shown in a fish's lore before the length of the fish
+fish-length: "&f长度 {length}cm"
+# The text to come before the rarity of the fish i.e. "Rarity: UNCOMMON"
+#fish-rarity-prefix: "&fRarity: "
+
+# The format of commands in /emf help (this message doesn't support papi placeholders)
+help: "/{command} - {description}"
+
+# The format of the leaderboard after a competition is over (this message doesn't support papi placeholders)
+leaderboard-largest-fish: "&r#{position} | {pos_colour}{player} &r({rarity} {fish}&r, {length}cm&r)"
+leaderboard-most-fish: "&r#{position} | {pos_colour}{player} &r({pos_colour}{amount} &rfish)"
+# If you're running a competition where there's no leaderboard, this message is sent when there's a winner
+single-winner: "&r{player} 赢下了{type}赛。恭喜!"
+# The number of positions shown in the leaderboard - can't be less than 1.
+leaderboard-count: 5
+# If the player doesn't appear on /emf top, should their position be displayed at the bottom?
+always-show-pos: true
+# Sent to players when nobody got a record during a competition
+no-winners: "&r没有钓鱼记录。"
+# When an individual player didn't get a record
+no-record: "&r你没有钓到任何鱼。"
+# Sent when an admin tries to start a competition where the type doesn't exist e.g. /emf admin competition start 600 ABCDEFGH
+invalid-type: "&r那不是一种比赛的类型，可用的类型: MOST_FISH, LARGEST_FISH, SPECIFIC_FISH"
+# Sent to all online players when not enough players are on to start a competition
+not-enough-players: "&r没有足够的在线玩家来开始计划的钓鱼比赛。"
+# Sent to all players at specific times to show the remaining time left
+# {time_formatted} shows the time (e.g. 5m left, 10m 30s left)
+# {time_raw} is what you input in competitions.yml
+time-alert: "&r{type}赛还剩 {time_formatted}"
+
+# The GUI title for /emf shop
+worth-gui-name: "&1&l卖鱼"
+# The name found on the selling item in /emf shop
+sell-gui-name: "&6&l出售"
+# The name found on the item to sell all fish in inventory in /emf shop
+sell-all-name: "&6&l全部出售"
+# The name found on the confirming item in /emf shop
+confirm-gui-name: "&6&l确认"
+# The name found on the confirming sell all item in /emf shop
+confirm-sell-all-gui-name: "&6&l确认"
+# The name found on the error item in /emf shop when the gui contains no items of value.
+error-gui-name: "&c&l无法出售"
+# The name found on the error item in /emf shop when the player's inventory contains no items of value.
+error-sell-all-gui-name: "&c&l无法出售"
+# The lore found on the selling/confirmation item in /emf shop
+sell-gui-lore:
+  - "&8鱼类商店"
+  - ""
+  - "&7总价值 » &e${sell-price}"
+  - ""
+  - "&7在这里出售你的鱼"
+  - "&7来获得一些额外的钱。"
+  - ""
+  - "&e» (左键点击) 出售鱼。"
+  - "&7» (右键点击) 取消。"
+
+sell-all-lore:
+  - "&8物品栏"
+  - ""
+  - "&7总价值 » &e${sell-price}"
+  - ""
+  - "&7点击这个按钮来出售"
+  - "&7你的物品栏里的鱼"
+  - "&7来获得一些额外的钱。"
+  - ""
+  - "&e» (左键点击) 出售鱼。"
+# The lore below the error item in /emf shop when the gui contains no items of value.
+error-gui-lore:
+  - "&8鱼类商店"
+  - ""
+  - "&7总价值 » &c$0"
+  - ""
+  - "&7在这里出售你的鱼"
+  - "&7来获得一些额外的钱。"
+  - ""
+  - "&c» (左键点击) 出售鱼。"
+  - "&7» (右键点击) 取消。"
+
+error-sell-all-gui-lore:
+  - "&8物品栏"
+  - ""
+  - "&7总价值 » &c$0"
+  - ""
+  - "&7点击这个按钮来出售"
+  - "&7你的物品栏里的鱼"
+  - "&7来获得一些额外的钱。"
+  - ""
+  - "&c» (左键点击) 出售鱼。"
+# The message sent to players when they've sold their fish in the /emf shop
+fish-sale: "&f你以 &a${sell-price} 卖出了 &a{amount} &f条鱼。"
+
+# Shown when the emf competition placeholders request a position in the leaderboard that doesn't exist
+no-player-in-place: "开始钓鱼来占据这个位置"
+# Shown when the emf competition placeholders are used when there's no competition running
+no-competition-running: "当前没有正在进行的比赛。"
+# Should %emf_competition_place_player_*% contain the above (false) or return null (true).
+emf-competition-player-null: false
+# Should %emf_competition_place_size_*% contain the above (false) or return null (true).
+emf-competition-size-null: true
+# Should %emf_competition_place_fish_*% contain the above (false) or return null (true).
+emf-competition-fish-null: true
+# How should the %emf_competition_place_fish_*% be formatted?
+emf-competition-fish-format: "{length}cm &l{rarity} {fish}"
+# ATTENTION ATTENTION ATTENTION
+# DO NOT EDIT THIS VALUE UNLESS YOU'RE UPDATING THE MESSAGES.
+config-version: 7
