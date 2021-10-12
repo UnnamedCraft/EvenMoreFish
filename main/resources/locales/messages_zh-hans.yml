@@ -38,7 +38,7 @@ bossbar:
   remaining: " 剩余"
 
 # The prefix shown before pretty much all commands to do with the plugin. Keeping the space in is recommended.
-prefix: "[EvenMoreFish] "
+prefix: "[更多钓鱼] "
 # The colour of the [EvenMoreFish] prefix in commands (for when your prefix doesn't have colours)
 prefix-regular: "&a"
 # The colour of the [EvenMoreFish] prefix in admin commands (for when your prefix doesn't have colours)
