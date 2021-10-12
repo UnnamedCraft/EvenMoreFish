@@ -35,6 +35,12 @@
 
 想要贡献翻译的话，请创建一个包含新的 messages.yml 文件的 pull request，例如 `messages_sv.yml` 或 `messages.fr.yml`
 
+> 译者注：请向本项目的上游存储库提交 messages.yml 文件，而非本存储库。
+
+## 📥 下载 📥
+
+在本存储库的 [Github Actions 页面](https://github.com/UnnamedCraft/EvenMoreFish/actions)可以下载最新的构建。
+
 玩得愉快！
 
 Oheers 
