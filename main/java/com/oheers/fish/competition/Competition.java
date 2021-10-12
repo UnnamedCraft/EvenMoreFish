@@ -35,19 +35,35 @@ public class Competition {
 
     static boolean active;
 
+    static boolean originallyRandom;
+
+    public String competitionName;
+    public boolean adminStarted;
+
     // In a SPECIFIC_FISH competition, there won't be a leaderboard
     public boolean leaderboardApplicable;
     public static Leaderboard leaderboard;
 
     public Competition(final Integer duration, final CompetitionType type) {
         this.maxDuration = duration;
-        this.competitionType = type;
         this.alertTimes = new ArrayList<>();
         this.rewards = new HashMap<>();
-
+        this.competitionType = type;
     }
 
     public void begin(boolean adminStart) {
+        if (competitionType == CompetitionType.RANDOM) {
+            competitionType = getRandomType();
+            System.out.println("resetting to " + competitionType);
+            originallyRandom = true;
+        }
+
+        if (competitionType == CompetitionType.SPECIFIC_FISH) {
+            if (!chooseFish(competitionName, adminStart)) return;
+        } else {
+            leaderboardApplicable = true;
+        }
+
         this.timeLeft = this.maxDuration;
         if (Bukkit.getOnlinePlayers().size() >= playersNeeded || adminStart) {
             active = true;
@@ -75,6 +91,7 @@ public class Competition {
             leaderboard.clear();
         }
         active = false;
+        if (originallyRandom) competitionType = CompetitionType.RANDOM;
     }
 
     // Starts an async task to decrease the time left by 1s each second
@@ -89,10 +106,13 @@ public class Competition {
                             .setTimeRaw(FishUtils.timeRaw(timeLeft))
                             .setType(competitionType);
                     if (competitionType == CompetitionType.SPECIFIC_FISH) {
-                        m.setAmount(Integer.toString(numberNeeded))
-                                .setRarity(selectedFish.getRarity().getValue())
-                                .setColour(selectedFish.getRarity().getColour())
-                                .setFishCaught(selectedFish.getName());
+                        m.setAmount(Integer.toString(numberNeeded)).setRarityColour(selectedFish.getRarity().getColour());
+
+                        if (selectedFish.getRarity().getDisplayName() != null) m.setRarity(selectedFish.getRarity().getDisplayName());
+                        else m.setRarity(selectedFish.getRarity().getValue());
+
+                        if (selectedFish.getDisplayName() != null) m.setFishCaught(selectedFish.getDisplayName());
+                        else m.setFishCaught(selectedFish.getName());
                     }
 
                     for (Player player : Bukkit.getOnlinePlayers()) {
@@ -141,7 +161,7 @@ public class Competition {
                         entry.incrementValue();
                         leaderboard.addEntry(entry);
                     } catch (Exception exception) {
-                        Bukkit.getLogger().log(Level.SEVERE, "无法删除 " + entry);
+                        EvenMoreFish.logger.log(Level.SEVERE, "无法删除: " + entry);
                     }
 
                     if (entry.getValue() == numberNeeded && competitionType == CompetitionType.SPECIFIC_FISH) {
@@ -157,6 +177,10 @@ public class Competition {
                 end();
             }
         } else {
+
+            // If a fish has no size it shouldn't be able to join the competition
+            if (fish.getLength() <= 0) return;
+
             CompetitionEntry entry = leaderboard.getEntry(fisher.getUniqueId());
 
             if (entry != null) {
@@ -206,9 +230,13 @@ public class Competition {
                     .setMSG(EvenMoreFish.msgs.getCompetitionStart())
                     .setAmount(Integer.toString(this.numberNeeded))
                     .setType(this.competitionType)
-                    .setRarity(selectedFish.getRarity().getValue())
-                    .setColour(selectedFish.getRarity().getColour())
-                    .setFishCaught(selectedFish.getName());
+                    .setRarityColour(selectedFish.getRarity().getColour());
+
+            if (selectedFish.getRarity().getDisplayName() != null) msg.setRarity(selectedFish.getRarity().getDisplayName());
+            else msg.setRarity(selectedFish.getRarity().getValue());
+
+            if (selectedFish.getDisplayName() != null) msg.setFishCaught(selectedFish.getDisplayName());
+            else msg.setFishCaught(selectedFish.getName());
         }
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.sendMessage(msg.toString());
@@ -255,11 +283,15 @@ public class Competition {
 
                         if (competitionType == CompetitionType.LARGEST_FISH) {
                             Fish fish = entry.getFish();
-                            message.setRarity(fish.getRarity().getValue())
-                                    .setColour(fish.getRarity().getColour())
-                                    .setFishCaught(fish.getName())
+                            message.setRarityColour(fish.getRarity().getColour())
                                     .setLength(Float.toString(entry.getValue()))
                                     .setMSG(EvenMoreFish.msgs.getLargestFishLeaderboard());
+
+                            if (fish.getRarity().getDisplayName() != null) message.setRarity(fish.getRarity().getDisplayName());
+                            else message.setRarity(fish.getRarity().getValue());
+
+                            if (fish.getDisplayName() != null) message.setFishCaught(fish.getDisplayName());
+                            else message.setFishCaught(fish.getName());
                         } else {
                             message.setAmount(Integer.toString((int) entry.getValue()))
                                     .setMSG(EvenMoreFish.msgs.getMostFishLeaderboard());
@@ -285,11 +317,15 @@ public class Competition {
 
                             if (competitionType == CompetitionType.LARGEST_FISH) {
                                 Fish fish = entry.getFish();
-                                message.setRarity(fish.getRarity().getValue())
-                                        .setColour(fish.getRarity().getColour())
-                                        .setFishCaught(fish.getName())
+                                message.setRarityColour(fish.getRarity().getColour())
                                         .setLength(Float.toString(entry.getValue()))
                                         .setMSG(EvenMoreFish.msgs.getLargestFishLeaderboard());
+
+                                if (fish.getRarity().getDisplayName() != null) message.setRarity(fish.getRarity().getDisplayName());
+                                else message.setRarity(fish.getRarity().getValue());
+
+                                if (fish.getDisplayName() != null) message.setFishCaught(fish.getDisplayName());
+                                else message.setFishCaught(fish.getName());
                             } else {
                                 message.setAmount(Integer.toString((int) entry.getValue()))
                                         .setMSG(EvenMoreFish.msgs.getMostFishLeaderboard());
@@ -336,6 +372,18 @@ public class Competition {
         return leaderboard;
     }
 
+    public void setCompetitionName(String competitionName) {
+        this.competitionName = competitionName;
+    }
+
+    public void setAdminStarted(boolean adminStarted) {
+        this.adminStarted = adminStarted;
+    }
+
+    public static void setOriginallyRandom(boolean originallyRandom) {
+        Competition.originallyRandom = originallyRandom;
+    }
+
     public void initLeaderboard() {
         leaderboardApplicable = true;
         leaderboard = new Leaderboard(competitionType);
@@ -359,9 +407,9 @@ public class Competition {
             this.selectedFish = fish.get(r.nextInt(fish.size()));
             return true;
         } catch (IllegalArgumentException exception) {
-            Bukkit.getLogger().log(Level.SEVERE, "无法加载: " + competitionName + "，因为无法随机选择一种鱼。\n如果你需要帮助，请提供以下信息:");
-            Bukkit.getLogger().log(Level.SEVERE, "fish.size(): " + fish.size());
-            Bukkit.getLogger().log(Level.SEVERE, "allowedRarities.size(): " + allowedRarities.size());
+            EvenMoreFish.logger.log(Level.SEVERE, "无法加载: " + competitionName + "，因为无法随机选择一种鱼。\n如果你需要帮助，请提供以下信息:");
+            EvenMoreFish.logger.log(Level.SEVERE, "fish.size(): " + fish.size());
+            EvenMoreFish.logger.log(Level.SEVERE, "allowedRarities.size(): " + allowedRarities.size());
             return false;
         }
     }
@@ -374,10 +422,10 @@ public class Competition {
                 try {
                     alertTimes.add(Integer.parseInt(split[0])*60 + Integer.parseInt(split[1]));
                 } catch (NumberFormatException nfe) {
-                    Bukkit.getLogger().log(Level.SEVERE, "无法将 " + s + " 转换为提醒时间。如果你需要帮助，欢迎加入 Discord 服务器: https://discord.gg/Hb9cj3tNbb");
+                    EvenMoreFish.logger.log(Level.SEVERE, "无法将 " + s + " 转换为提醒时间。如果你需要帮助，欢迎加入 Discord 服务器: https://discord.gg/Hb9cj3tNbb");
                 }
             } else {
-                Bukkit.getLogger().log(Level.SEVERE, s + " 的格式不正确。请使用 MM:SS 的格式");
+                EvenMoreFish.logger.log(Level.SEVERE, s + " 的格式不正确。请使用 MM:SS 的格式");
             }
         }
     }
@@ -418,10 +466,8 @@ public class Competition {
             int i = 1;
             while (iterator.hasNext() && i <= rewards.size()) {
                 CompetitionEntry entry = iterator.next();
-                if (Bukkit.getPlayer(entry.getPlayer()) != null) {
-                    for (Reward reward : rewards.get(i)) {
-                        reward.run(Bukkit.getPlayer(entry.getPlayer()));
-                    }
+                for (Reward reward : rewards.get(i)) {
+                    reward.run(Bukkit.getOfflinePlayer(entry.getPlayer()));
                 }
                 i++;
             }
@@ -441,12 +487,16 @@ public class Competition {
                 .setType(competitionType);
         String broadcast;
         if (competitionType == CompetitionType.SPECIFIC_FISH) {
-            broadcast = m
-                    .setRarity(selectedFish.getRarity().getValue())
-                    .setAmount(Integer.toString(numberNeeded))
-                    .setColour(selectedFish.getRarity().getColour())
-                    .setFishCaught(selectedFish.getName())
-                    .toString();
+            m.setAmount(Integer.toString(numberNeeded))
+                    .setRarityColour(selectedFish.getRarity().getColour());
+
+            if (selectedFish.getRarity().getDisplayName() != null) m.setRarity(selectedFish.getRarity().getDisplayName());
+            else m.setRarity(selectedFish.getRarity().getValue());
+
+            if (selectedFish.getDisplayName() != null) m.setFishCaught(selectedFish.getDisplayName());
+            else m.setFishCaught(selectedFish.getName());
+
+            broadcast = m.toString();
         } else broadcast = m.toString();
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.sendMessage(broadcast);
@@ -464,7 +514,7 @@ public class Competition {
         try {
             this.statusBar.setColour(BarColor.valueOf(EvenMoreFish.competitionConfig.getBarColour(competionName)));
         } catch (IllegalArgumentException iae) {
-            Bukkit.getLogger().log(Level.SEVERE, EvenMoreFish.competitionConfig.getBarColour(competionName) + " 不是有效的 BossBar 颜色，请检查。 ");
+            EvenMoreFish.logger.log(Level.SEVERE, EvenMoreFish.competitionConfig.getBarColour(competionName) + " 不是有效的 BossBar 颜色，请检查 ");
         }
 
         this.statusBar.setPrefix(FishUtils.translateHexColorCodes(EvenMoreFish.competitionConfig.getBarPrefix(competionName)));
@@ -472,5 +522,11 @@ public class Competition {
 
     public void initGetNumbersNeeded(String competitionName) {
         this.playersNeeded = EvenMoreFish.competitionConfig.getPlayersNeeded(competitionName);
+    }
+
+    private CompetitionType getRandomType() {
+        // -1 from the length so that the RANDOM isn't chosen as the random value.
+        int type = new Random().nextInt(CompetitionType.values().length-1);
+        return CompetitionType.values()[type];
     }
 }

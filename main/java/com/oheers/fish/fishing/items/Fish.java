@@ -32,11 +32,17 @@ public class Fish implements Cloneable {
     UUID fisherman;
     Float length;
 
+    String displayName;
+
     List<Reward> actionRewards;
     List<Reward> fishRewards;
     String eventType;
 
     List<Biome> biomes;
+
+    String permissionNode;
+
+    double weight;
 
     double minSize, maxSize;
 
@@ -46,10 +52,12 @@ public class Fish implements Cloneable {
         this.rarity = rarity;
         this.name = name;
         this.type = setType();
+        this.weight = 0;
 
         setSize();
         checkEatEvent();
         checkIntEvent();
+        checkDisplayName();
 
         fishRewards = new ArrayList<>();
         checkFishEvent();
@@ -63,7 +71,9 @@ public class Fish implements Cloneable {
 
         ItemMeta fishMeta = fish.getItemMeta();
 
-        fishMeta.setDisplayName(FishUtils.translateHexColorCodes(rarity.getColour() + name));
+        if (displayName != null) fishMeta.setDisplayName(FishUtils.translateHexColorCodes(displayName));
+        else fishMeta.setDisplayName(FishUtils.translateHexColorCodes(rarity.getColour() + name));
+
         fishMeta.setLore(generateLore());
 
         if (glowing) fishMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
@@ -94,9 +104,13 @@ public class Fish implements Cloneable {
     }
 
     private void generateSize() {
-        // Random logic that returns a float to 1dp
-        int len = (int) (Math.random() * (maxSize*10 - minSize*10 + 1) + minSize*10);
-        this.length = (float) len/10;
+        if (minSize < 0) {
+            this.length = -1f;
+        } else {
+            // Random logic that returns a float to 1dp
+            int len = (int) (Math.random() * (maxSize*10 - minSize*10 + 1) + minSize*10);
+            this.length = (float) len/10;
+        }
     }
 
     public String getName() {
@@ -141,6 +155,30 @@ public class Fish implements Cloneable {
         if (eventType != null) {
             return eventType.equals("int");
         } else return false;
+    }
+
+    public void setWeight(double weight) {
+        this.weight = weight;
+    }
+
+    public double getWeight() {
+        return weight;
+    }
+
+    public String getPermissionNode() {
+        return permissionNode;
+    }
+
+    public void setPermissionNode(String permissionNode) {
+        this.permissionNode = permissionNode;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     private ItemStack setType() {
@@ -246,7 +284,7 @@ public class Fish implements Cloneable {
         List<String> lore = new ArrayList<>();
 
         lore.add(new Message().setMSG(EvenMoreFish.msgs.fishCaughtBy()).setPlayer(Objects.requireNonNull(Bukkit.getPlayer(this.fisherman)).getName()).toString());
-        lore.add(new Message().setMSG(EvenMoreFish.msgs.fishLength()).setLength(Float.toString(length)).setColour("").toString());
+        if (this.length != -1) lore.add(new Message().setMSG(EvenMoreFish.msgs.fishLength()).setLength(Float.toString(length)).setRarityColour("").toString());
         lore.add(" ");
 
         // custom lore in fish.yml
@@ -264,6 +302,10 @@ public class Fish implements Cloneable {
         lore.add(FishUtils.translateHexColorCodes(EvenMoreFish.msgs.getRarityPrefix()) + FishUtils.translateHexColorCodes(this.rarity.getLorePrep()));
 
         return lore;
+    }
+
+    public void checkDisplayName() {
+        this.displayName = EvenMoreFish.fishFile.getConfig().getString("fish." + this.rarity.getValue() + "." + this.name + ".displayname");
     }
 
     public void randomBreak() {
@@ -296,7 +338,7 @@ public class Fish implements Cloneable {
     }
 
     public void checkFishEvent() {
-        List<String> configRewards = EvenMoreFish.fishFile.getConfig().getStringList("fish." + this.rarity.getValue() + "." + this.name + ".fish-event");
+        List<String> configRewards = EvenMoreFish.fishFile.getConfig().getStringList("fish." + this.rarity.getValue() + "." + this.name + ".catch-event");
         if (!configRewards.isEmpty()) {
             // Translates all the rewards into Reward objects and adds them to the fish.
             for (String reward : configRewards) {

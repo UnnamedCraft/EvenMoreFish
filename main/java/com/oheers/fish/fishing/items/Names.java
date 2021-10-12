@@ -32,6 +32,9 @@ public class Names {
 
             // creates a rarity object and a fish queue
             Rarity r = new Rarity(rarity, rarityColour(rarity), rarityWeight(rarity), rarityAnnounce(rarity), rarityOverridenLore(rarity));
+            r.setPermission(rarityPermission(rarity));
+            r.setDisplayName(rarityDisplayName(rarity));
+
             List<Fish> fishQueue = new ArrayList<>();
 
             for (String fish : fishSet) {
@@ -40,6 +43,8 @@ public class Names {
                 Fish canvas = new Fish(r, fish);
                 canvas.setBiomes(getBiomes(fish, r.getValue()));
                 canvas.setGlowing(getGlowing(fish, r.getValue()));
+                canvas.setPermissionNode(permissionCheck(fish, rarity));
+                weightCheck(canvas, fish, r, rarity);
                 fishQueue.add(canvas);
 
             }
@@ -70,6 +75,14 @@ public class Names {
         return EvenMoreFish.raritiesFile.getConfig().getString("rarities." + rarity + ".override-lore");
     }
 
+    private String rarityDisplayName(String rarity) {
+        return EvenMoreFish.raritiesFile.getConfig().getString("rarities." + rarity + ".displayname");
+    }
+
+    private String rarityPermission(String rarity) {
+        return EvenMoreFish.raritiesFile.getConfig().getString("rarities." + rarity + ".permission");
+    }
+
     private List<Biome> getBiomes(String name, String rarity) {
         // returns the biomes found in the "biomes:" section of the fish.yml
         List<Biome> biomes = new ArrayList<>();
@@ -79,6 +92,17 @@ public class Names {
         }
 
         return biomes;
+    }
+
+    private void weightCheck(Fish fishObject, String name, Rarity rarityObject, String rarity) {
+        if (EvenMoreFish.fishFile.getConfig().getDouble("fish." + rarity + "." + name + ".weight") != 0) {
+            rarityObject.setFishWeighted(true);
+            fishObject.setWeight(EvenMoreFish.fishFile.getConfig().getDouble("fish." + rarity + "." + name + ".weight"));
+        }
+    }
+
+    private String permissionCheck(String name, String rarity) {
+        return EvenMoreFish.fishFile.getConfig().getString("fish." + rarity + "." + name + ".permission");
     }
 
     private boolean getGlowing(String name, String rarity) {
