@@ -57,16 +57,28 @@ public class FishingProcessor implements Listener {
                         return;
                     }
 
+                    if (!FishUtils.checkWorld(event.getHook().getLocation())) {
+                        return;
+                    }
+
                     Player player = event.getPlayer();
 
-                    Fish fish = getFish(random(), event.getHook().getLocation().getBlock().getBiome());
+                    Fish fish = getFish(randomWeightedRarity(player), event.getHook().getLocation().getBlock().getBiome(), player);
+                    if (fish == null) return;
                     fish.setFisherman(player.getUniqueId());
                     fish.init();
                     // puts all the fish information into a format that Messages.renderMessage() can print out nicely
 
                     String length = Float.toString(fish.getLength());
-                    String name = FishUtils.translateHexColorCodes(fish.getRarity().getColour() + "&l" + fish.getName());
-                    String rarity = FishUtils.translateHexColorCodes(fish.getRarity().getColour() + "&l" + fish.getRarity().getValue());
+                    // Translating the colours because some servers store colour in their fish name
+                    String name = FishUtils.translateHexColorCodes(fish.getName());
+                    String rarity = FishUtils.translateHexColorCodes(fish.getRarity().getValue());
+
+                    if (fish.hasFishRewards()) {
+                        for (Reward fishReward : fish.getFishRewards()) {
+                            fishReward.run(player);
+                        }
+                    }
 
                     if (fish.hasFishRewards()) {
                         for (Reward fishReward : fish.getFishRewards()) {
@@ -83,11 +95,22 @@ public class FishingProcessor implements Listener {
                     Message msg = new Message()
                             .setMSG(EvenMoreFish.msgs.getFishCaught())
                             .setPlayer(player.getName())
-                            .setColour(fish.getRarity().getColour())
+                            .setRarityColour(fish.getRarity().getColour())
                             .setLength(length)
-                            .setFishCaught(name)
                             .setRarity(rarity)
                             .setReceiver(player);
+
+                    if (fish.getDisplayName() != null) msg.setFishCaught(fish.getDisplayName());
+                    else msg.setFishCaught(name);
+
+                    if (fish.getRarity().getDisplayName() != null) msg.setRarity(fish.getRarity().getDisplayName());
+                    else msg.setRarity(rarity);
+
+                    if (fish.getLength() != -1) {
+                        msg.setMSG(EvenMoreFish.msgs.getFishCaught());
+                    } else {
+                        msg.setMSG(EvenMoreFish.msgs.getLengthlessFishCaught());
+                    }
 
                     // Gets whether it's a serverwide announce or not
                     if (fish.getRarity().getAnnounce()) {
@@ -107,7 +130,10 @@ public class FishingProcessor implements Listener {
 
                     // replaces the fishing item with a custom evenmorefish fish.
                     Item nonCustom = (Item) event.getCaught();
-                    nonCustom.setItemStack(fish.give());
+                    if (nonCustom != null) {
+                        if (fish.getType().getType() != Material.AIR) nonCustom.setItemStack(fish.give());
+                        else nonCustom.remove();
+                    }
 
                     if (EvenMoreFish.mainConfig.isDatabaseOnline()) {
                         new BukkitRunnable() {
@@ -139,33 +165,75 @@ public class FishingProcessor implements Listener {
         }
     }
 
-    private static Rarity random() {
+    private static Rarity randomWeightedRarity(Player fisher) {
         // Loads all the rarities
-        List<Rarity> rarities = new ArrayList<>(EvenMoreFish.fishCollection.keySet());
+        List<Rarity> allowedRarities = new ArrayList<>();
+
+        if (EvenMoreFish.permission != null) {
+            for (Rarity rarity : EvenMoreFish.fishCollection.keySet()) {
+                if (rarity.getPermission() != null) {
+                    if (EvenMoreFish.permission.has(fisher, rarity.getPermission())) {
+                        allowedRarities.add(rarity);
+                    }
+                } else {
+                    allowedRarities.add(rarity);
+                }
+            }
+
+        } else {
+            allowedRarities.addAll(EvenMoreFish.fishCollection.keySet());
+        }
 
         double totalWeight = 0;
 
         // Weighted random logic (nabbed from stackoverflow)
-        for (Rarity r : rarities) {
+        for (Rarity r : allowedRarities) {
             totalWeight += r.getWeight();
         }
 
         int idx = 0;
-        for (double r = Math.random() * totalWeight; idx < rarities.size() - 1; ++idx) {
-            r -= rarities.get(idx).getWeight();
+        for (double r = Math.random() * totalWeight; idx < allowedRarities.size() - 1; ++idx) {
+            r -= allowedRarities.get(idx).getWeight();
             if (r <= 0.0) break;
         }
 
-        return rarities.get(idx);
+        if (allowedRarities.size() == 0) {
+            EvenMoreFish.logger.log(Level.SEVERE, "There are no rarities for the user " + fisher.getName() + " to fish. They have received no fish.");
+            return null;
+        }
+
+        return allowedRarities.get(idx);
     }
 
-    private static Fish getFish(Rarity r, Biome b) {
-        // the fish that are of (Rarity r)
-        List<Fish> rarityFish = EvenMoreFish.fishCollection.get(r);
+    private static Fish randomWeightedFish(List<Fish> fishList) {
+        double totalWeight = 0;
+
+        // Weighted random logic (nabbed from stackoverflow)
+        for (Fish fish : fishList) {
+            totalWeight += fish.getWeight();
+        }
+
+        int idx = 0;
+        for (double r = Math.random() * totalWeight; idx < fishList.size() - 1; ++idx) {
+            r -= fishList.get(idx).getWeight();
+            if (r <= 0.0) break;
+        }
+
+        return fishList.get(idx);
+    }
+
+    private static Fish getFish(Rarity r, Biome b, Player p) {
+        if (r == null) return null;
         // will store all the fish that match the player's biome or don't discriminate biomes
         List<Fish> available = new ArrayList<>();
 
-        for (Fish f : rarityFish) {
+        for (Fish f : EvenMoreFish.fishCollection.get(r)) {
+
+            if (EvenMoreFish.permission != null && f.getPermissionNode() != null) {
+                if (!EvenMoreFish.permission.has(p, f.getPermissionNode())) {
+                    continue;
+                }
+            }
 
             if (f.getBiomes().contains(b) || f.getBiomes().size()==0) {
                 available.add(f);
@@ -174,18 +242,17 @@ public class FishingProcessor implements Listener {
 
         // if the config doesn't define any fish that can be fished in this biome.
         if (available.size() == 0) {
-            Bukkit.getLogger().log(Level.WARNING, "在 " + b.name() + " 生物群系中没有稀有度为 " + r.getValue() + " 的鱼可供垂钓。");
-            return defaultFish();
+            EvenMoreFish.logger.log(Level.WARNING, "在 " + b.name() + " 生物群系中没有稀有度为 " + r.getValue() + " 的鱼可供垂钓。");
+            return null;
         }
 
-        int ran = (int) (Math.random() * available.size());
-        return available.get(ran);
-    }
-
-    // if there's no fish available in the current biome, this gets sent out
-    private static Fish defaultFish() {
-        Rarity r = new Rarity("未找到生物群系", "&4", 1.0d, false, null);
-        return new Fish(r, "");
+        // checks whether weight calculations need doing for fish
+        if (r.isFishWeighted()) {
+            return randomWeightedFish(available);
+        } else {
+            int ran = (int) (Math.random() * available.size());
+            return available.get(ran);
+        }
     }
 
     // Checks if it should be giving the player the fish considering the fish-only-in-competition option in config.yml

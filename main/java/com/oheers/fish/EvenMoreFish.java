@@ -29,9 +29,11 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class EvenMoreFish extends JavaPlugin {
 
@@ -57,6 +59,8 @@ public class EvenMoreFish extends JavaPlugin {
     public static Competition active;
     public static CompetitionQueue competitionQueue;
 
+    public static Logger logger;
+
     public static ArrayList<SellGUI> guis;
 
     public static boolean isUpdateAvailable;
@@ -67,9 +71,14 @@ public class EvenMoreFish extends JavaPlugin {
 
     public static final int METRIC_ID = 11054;
 
+    public static final int MSG_CONFIG_VERSION = 8;
+    public static final int MAIN_CONFIG_VERSION = 8;
+    public static final int COMP_CONFIG_VERSION = 1;
+
     public void onEnable() {
 
         guis = new ArrayList<>();
+        logger = getLogger();
 
         fishFile = new FishFile(this);
         raritiesFile = new RaritiesFile(this);
@@ -80,6 +89,18 @@ public class EvenMoreFish extends JavaPlugin {
         mainConfig = new MainConfig();
         competitionConfig = new CompetitionConfig();
 
+        if (mainConfig.isEconomyEnabled()) {
+            // could not setup economy.
+            if (!setupEconomy()) {
+                EvenMoreFish.logger.log(Level.WARNING, "EvenMoreFish 将不会连接到经济插件。如果你没有在 config.yml 中选择此项，请安装经济处理插件。");
+            }
+        }
+
+        if (!setupPermissions()) {
+            Bukkit.getServer().getLogger().log(Level.SEVERE, "EvenMoreFish 无法连接到财富及财富权限插件。关闭此项以防止出现更严重的问题。");
+            getServer().getPluginManager().disablePlugin(this);
+        }
+
         Names names = new Names();
         names.loadRarities();
 
@@ -89,22 +110,14 @@ public class EvenMoreFish extends JavaPlugin {
         LocaleGen lG = new LocaleGen();
         lG.createLocaleFiles(this);
 
-        if (mainConfig.isEconomyEnabled()) {
-            // could not setup economy.
-            if (!setupEconomy()) {
-                Bukkit.getLogger().log(Level.WARNING, "EvenMoreFish 将不会连接到经济插件。如果你没有在 config.yml 中选择此项，请安装经济处理插件。");
-            }
-        }
-
-        if (!setupPermissions()) {
-            Bukkit.getServer().getLogger().log(Level.SEVERE, "EvenMoreFish 无法连接到财富及财富权限插件。关闭此项以防止出现更严重的问题。");
-            getServer().getPluginManager().disablePlugin(this);
-        }
-
         // async check for updates on the spigot page
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-            checkUpdate();
-            checkConfigVers();
+            isUpdateAvailable = checkUpdate();
+            try {
+                checkConfigVers();
+            } catch (IOException exception) {
+                logger.log(Level.WARNING, "Could not update messages.yml");
+            }
         });
 
         // checks against both support region plugins and sets an active plugin (worldguard is priority)
@@ -119,8 +132,6 @@ public class EvenMoreFish extends JavaPlugin {
 
         getConfig().options().copyDefaults();
         saveDefaultConfig();
-
-        Help.loadValues();
 
         AutoRunner.init();
 
@@ -173,6 +184,7 @@ public class EvenMoreFish extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new FishingProcessor(), this);
         getServer().getPluginManager().registerEvents(new InteractHandler(this), this);
         getServer().getPluginManager().registerEvents(new UpdateNotify(), this);
+        getServer().getPluginManager().registerEvents(new SkullSaver(), this);
 
         optionalListeners();
     }
@@ -254,32 +266,48 @@ public class EvenMoreFish extends JavaPlugin {
     }
 
     // Checks for updates, surprisingly
-    private void checkUpdate() {
-        if (!getDescription().getVersion().equals(new UpdateChecker(this, 91310).getVersion())) {
-            isUpdateAvailable = true;
+    private boolean checkUpdate() {
+
+
+        String[] spigotVersion = new UpdateChecker(this, 91310).getVersion().split("\\.");
+        String[] serverVersion = getDescription().getVersion().split("\\.");
+
+        for (int i=0; i<serverVersion.length; i++) {
+            if (spigotVersion[i] != null) {
+                if (Integer.parseInt(spigotVersion[i]) > Integer.parseInt(serverVersion[i])) {
+                    return true;
+                }
+            } else {
+                return false;
+            }
         }
+        return false;
     }
 
-    private void checkConfigVers() {
-        int MSG_CONFIG_VERSION = 7;
+    private void checkConfigVers() throws IOException {
+
         if (msgs.configVersion() < MSG_CONFIG_VERSION) {
-            getLogger().log(Level.WARNING, "你的 messages.yml 不是最新的。此插件可能已经添加一些新的配置功能，并且如果你没有" +
-                    "最新的配置文件的话，你无法自定义它们。要更新的话，要么删除你的 messages.yml 文件并重启服务器来创建一个全新的，" +
-                    "要么浏览最近的更新，自行添加丢失的部分。https://www.spigotmc.org/resources/evenmorefish.91310/updates/");
+            ConfigUpdater.updateMessages(msgs.configVersion());
+            getLogger().log(Level.WARNING, "你的 messages.yml 不是最新的。此插件自动增加了新的配置功能，但是你也许需要编辑它们" +
+                    "才能配合你的服务器使用。");
+
+            EvenMoreFish.messageFile.reload();
         }
 
-        int MAIN_CONFIG_VERSION = 7;
         if (mainConfig.configVersion() < MAIN_CONFIG_VERSION) {
-            getLogger().log(Level.WARNING, "你的 config.yml 不是最新的。此插件可能已经添加一些新的配置功能，并且如果你没有" +
-                    "最新的配置文件的话，你无法自定义它们。要更新的话，要么删除你的 config.yml 文件并重启服务器来创建一个全新的，" +
-                    "要么浏览最近的更新，自行添加丢失的部分。https://www.spigotmc.org/resources/evenmorefish.91310/updates/");
+            ConfigUpdater.updateConfig(mainConfig.configVersion());
+            getLogger().log(Level.WARNING, "你的 config.yml 不是最新的。此插件自动增加了新的配置功能，但是你也许需要编辑它们" +
+                    "才能配合你的服务器使用。");
+
+            reloadConfig();
         }
 
-        int COMP_CONFIG_VERSION = 1;
         if (competitionConfig.configVersion() < COMP_CONFIG_VERSION) {
             getLogger().log(Level.WARNING, "你的 competitions.yml 不是最新的。此插件可能已经添加一些新的配置功能，并且如果你没有" +
                     "最新的配置文件的话，你无法自定义它们。要更新的话，要么删除你的 competitions.yml 文件并重启服务器来创建一个全新的，" +
                     "要么浏览最近的更新，自行添加丢失的部分。https://www.spigotmc.org/resources/evenmorefish.91310/updates/");
+
+            EvenMoreFish.competitionFile.reload();
         }
     }
 

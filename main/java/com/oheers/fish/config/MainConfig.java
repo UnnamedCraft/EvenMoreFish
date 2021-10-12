@@ -1,5 +1,6 @@
 package com.oheers.fish.config;
 
+import com.oheers.fish.EvenMoreFish;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -39,8 +40,16 @@ public class MainConfig {
         return config.getStringList("allowed-regions").size() != 0;
     }
 
+    public boolean worldWhitelist() {
+        return config.getStringList("allowed-worlds").size() != 0;
+    }
+
     public List<String> getAllowedRegions() {
         return config.getStringList("allowed-regions");
+    }
+
+    public List<String> getAllowedWorlds() {
+        return config.getStringList("allowed-worlds");
     }
 
     public boolean isEconomyEnabled() {
@@ -121,7 +130,7 @@ public class MainConfig {
             try {
                 return Material.valueOf(s);
             } catch (IllegalArgumentException exception) {
-                Bukkit.getLogger().log(Level.SEVERE, s + " 在 config.yml gui.sell-all-item 中不是一个有效的材料类型。");
+                EvenMoreFish.logger.log(Level.SEVERE, s + " 在 config.yml gui.sell-all-item 中不是一个有效的材料类型。");
             }
         }
         return Material.COD_BUCKET;
@@ -133,7 +142,7 @@ public class MainConfig {
             try {
                 return Material.valueOf(s);
             } catch (IllegalArgumentException exception) {
-                Bukkit.getLogger().log(Level.SEVERE, s + " 在 config.yml gui.sell-all-item-confirm 中不是一个有效的材料类型。");
+                EvenMoreFish.logger.log(Level.SEVERE, s + " 在 config.yml gui.sell-all-item-confirm 中不是一个有效的材料类型。");
             }
         }
         return Material.TROPICAL_FISH_BUCKET;
@@ -145,7 +154,7 @@ public class MainConfig {
             try {
                 return Material.valueOf(s);
             } catch (IllegalArgumentException exception) {
-                Bukkit.getLogger().log(Level.SEVERE, s + " 在 config.yml gui.sell-all-item-confirm 中不是一个有效的材料类型。");
+                EvenMoreFish.logger.log(Level.SEVERE, s + " 在 config.yml gui.sell-all-item-confirm 中不是一个有效的材料类型。");
             }
         }
         return Material.SALMON_BUCKET;
