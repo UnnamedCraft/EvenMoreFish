@@ -1,7 +1,6 @@
 package com.oheers.fish.config.messages;
 
 import com.oheers.fish.EvenMoreFish;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.Arrays;
@@ -123,6 +122,20 @@ public class Messages {
         return config.getString("fish-caught");
     }
 
+    public String getLengthlessFishCaught() {
+        String returning = config.getString("lengthless-fish-caught");
+        if (returning != null) return returning;
+
+        returning = getFishCaught();
+        if (returning != null) {
+            EvenMoreFish.getPlugin(EvenMoreFish.class).getLogger().log(Level.WARNING, "Missing config value: \"lengthless-fish-caught\". [messages.yml]");
+            return returning;
+        }
+
+        EvenMoreFish.getPlugin(EvenMoreFish.class).getLogger().log(Level.WARNING, "Missing config value: \"lengthless-fish-caught\". [messages.yml]");
+        return "&l{player} &rhas fished a {rarity_colour}&l{rarity} {rarity_colour}{fish}!";
+    }
+
     public String getNoPermission() {
         return getErrorPrefix() + config.getString("no-permission");
     }
@@ -224,7 +237,7 @@ public class Messages {
     }
 
     public void disabledInConsole() {
-        Bukkit.getLogger().log(Level.SEVERE, "此命令在后台被禁用，请在游戏中使用");
+        EvenMoreFish.logger.log(Level.SEVERE, "此命令在后台被禁用，请在游戏中使用");
     }
 
     public String getNoCompPlaceholder() {
@@ -305,5 +318,23 @@ public class Messages {
         List<String> returning = config.getStringList("sell-all-lore");
         if (returning.size() != 0) return returning;
         else return Arrays.asList("&e&l价格： &e${sell-price}", "&7左键卖掉背包中所有的鱼");
+    }
+
+    public List<String> getGeneralHelp() {
+        List<String> returning = config.getStringList("help-general");
+        if (returning.size() == 0) EvenMoreFish.logger.log(Level.WARNING, "Missing config value: \"help-general\". [messages.yml]");
+        return returning;
+    }
+
+    public List<String> getAdminHelp() {
+        List<String> returning = config.getStringList("help-admin");
+        if (returning.size() == 0) EvenMoreFish.logger.log(Level.WARNING, "Missing config value: \"help-admin\". [messages.yml]");
+        return returning;
+    }
+
+    public List<String> getCompetitionHelp() {
+        List<String> returning = config.getStringList("help-competition");
+        if (returning.size() == 0) EvenMoreFish.logger.log(Level.WARNING, "Missing config value: \"help-competition\". [messages.yml]");
+        return returning;
     }
 }

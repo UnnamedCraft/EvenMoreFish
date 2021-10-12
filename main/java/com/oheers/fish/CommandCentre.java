@@ -11,6 +11,7 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -35,7 +36,7 @@ public class CommandCentre implements TabCompleter, CommandExecutor {
         // Aliases are set in the plugin.yml
         if (cmd.getName().equalsIgnoreCase("evenmorefish")) {
             if (args.length == 0) {
-                sender.sendMessage(Help.std_help);
+                sender.sendMessage(Help.formGeneralHelp(sender));
             } else {
                 control(sender, args);
             }
@@ -85,7 +86,7 @@ public class CommandCentre implements TabCompleter, CommandExecutor {
                 }
                 break;
             default:
-                sender.sendMessage(Help.std_help);
+                sender.sendMessage(Help.formGeneralHelp(sender));
         }
     }
 
@@ -113,6 +114,7 @@ public class CommandCentre implements TabCompleter, CommandExecutor {
         compTypes = Arrays.asList(
                 "largest_fish",
                 "most_fish",
+                "random",
                 "specific_fish"
         );
     }
@@ -203,7 +205,7 @@ class Controls{
 
         // will only proceed after this if at least args[1] exists
         if (args.length == 1) {
-            sender.sendMessage(Help.admin_help);
+            sender.sendMessage(Help.formAdminHelp());
             return;
         }
 
@@ -219,10 +221,13 @@ class Controls{
                     for (Rarity r : EvenMoreFish.fishCollection.keySet()) {
                         if (args[2].equalsIgnoreCase(r.getValue())) {
                             BaseComponent baseComponent = new TextComponent("");
-                            baseComponent.addExtra(new TextComponent(FishUtils.translateHexColorCodes(r.getColour() + "&l" + r.getValue() + ": ")));
+                            if (r.getDisplayName() != null) baseComponent.addExtra(new TextComponent(FishUtils.translateHexColorCodes(r.getDisplayName())));
+                            else baseComponent.addExtra(new TextComponent(FishUtils.translateHexColorCodes(r.getColour() + "&l" + r.getValue() + ": ")));
 
                             for (Fish fish : EvenMoreFish.fishCollection.get(r)) {
-                                BaseComponent tC = new TextComponent(FishUtils.translateHexColorCodes(r.getColour() + "[" + fish.getName() + "] "));
+                                BaseComponent tC;
+                                if (fish.getDisplayName() != null) tC = new TextComponent(FishUtils.translateHexColorCodes(r.getColour() + "[" + fish.getDisplayName() + "] "));
+                                else tC = new TextComponent(FishUtils.translateHexColorCodes(r.getColour() + "[" + fish.getName() + "] "));
                                 tC.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, TextComponent.fromLegacyText("点击来获得一条鱼"))); // The only element of the hover events basecomponents is the item json
                                 tC.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/emf admin fish " + fish.getRarity().getValue() + " " + fish.getName()));
                                 baseComponent.addExtra(tC);
@@ -234,8 +239,15 @@ class Controls{
                     }
                     BaseComponent baseComponent = new TextComponent("");
                     for (Rarity r : EvenMoreFish.fishCollection.keySet()) {
-                        BaseComponent tC = new TextComponent(FishUtils.translateHexColorCodes(r.getColour() + "[" + r.getValue() + "] "));
-                        tC.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("Click to view " + r.getValue() + " fish."))); // The only element of the hover events basecomponents is the item json
+                        BaseComponent tC;
+                        if (r.getDisplayName() != null) {
+                            tC = new TextComponent(FishUtils.translateHexColorCodes("&r[" + r.getDisplayName() + "] "));
+                            tC.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("Click to view " + r.getDisplayName() + " fish.")));
+                        } else {
+                            tC = new TextComponent(FishUtils.translateHexColorCodes(r.getColour() + "[" + r.getValue() + "] "));
+                            tC.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("Click to view " + r.getValue() + " fish.")));
+                        }
+
                         tC.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/emf admin fish " + r.getValue()));
                         baseComponent.addExtra(tC);
                     }
@@ -259,7 +271,11 @@ class Controls{
                                     if (f.getName().equalsIgnoreCase(using.toString())) {
                                         f.setFisherman(((Player) sender).getUniqueId());
                                         f.init();
-                                        FishUtils.giveItems(Collections.singletonList(f.give()), (Player) sender);
+
+                                        if (f.getType().getType() != Material.AIR) {
+                                            FishUtils.giveItems(Collections.singletonList(f.give()), (Player) sender);
+                                        }
+
                                     }
                                 }
                             }
@@ -271,8 +287,14 @@ class Controls{
                 } else {
                     BaseComponent baseComponent = new TextComponent("");
                     for (Rarity r : EvenMoreFish.fishCollection.keySet()) {
-                        BaseComponent tC = new TextComponent(FishUtils.translateHexColorCodes(r.getColour() + "[" + r.getValue() + "] "));
-                        tC.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("点击来查看 " + r.getValue() + " 鱼。"))); // The only element of the hover events basecomponents is the item json
+                        BaseComponent tC;
+                        if (r.getDisplayName() != null) {
+                            tC = new TextComponent(FishUtils.translateHexColorCodes("&r[" + r.getDisplayName() + "] "));
+                            tC.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("点击来查看" + r.getDisplayName() + "鱼。")));
+                        } else {
+                            tC = new TextComponent(FishUtils.translateHexColorCodes(r.getColour() + "[" + r.getValue() + "] "));
+                            tC.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("点击来查看" + r.getValue() + "鱼。")));
+                        }
                         tC.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/emf admin fish " + r.getValue()));
                         baseComponent.addExtra(tC);
                     }
@@ -307,13 +329,13 @@ class Controls{
                 sender.sendMessage(msg.toString());
                 break;
             default:
-                sender.sendMessage(Help.admin_help);
+                sender.sendMessage(Help.formAdminHelp());
         }
     }
 
     protected static void competitionControl(String[] args, CommandSender player) {
         if (args.length == 2) {
-            player.sendMessage(Help.comp_help);
+            player.sendMessage(Help.formCompetitionHelp());
         } else {
             {
                 if (args[2].equalsIgnoreCase("start")) {
@@ -340,7 +362,7 @@ class Controls{
                         player.sendMessage(FishUtils.translateHexColorCodes(EvenMoreFish.msgs.competitionNotRunning()));
                     }
                 } else {
-                    player.sendMessage(Help.comp_help);
+                    player.sendMessage(Help.formCompetitionHelp());
                 }
             }
         }
@@ -359,12 +381,12 @@ class Controls{
             if (duration > 0) {
                 Competition comp = new Competition(duration, type);
 
-                if (type == CompetitionType.SPECIFIC_FISH) comp.chooseFish(null, true);
-                else comp.leaderboardApplicable = true;
-
+                comp.setCompetitionName("[admin_started]");
+                comp.setAdminStarted(true);
                 comp.initRewards(null, true);
                 comp.initBar(null);
                 comp.initGetNumbersNeeded(null);
+
                 EvenMoreFish.active = comp;
                 comp.begin(true);
             } else {
@@ -378,47 +400,58 @@ class Controls{
 
 class Help {
 
-    public static Map<String, String> cmdDictionary = new HashMap<>();
-    public static Map<String, String> adminDictionary = new HashMap<>();
-    public static Map<String, String> compDictionary = new HashMap<>();
+    public static String formGeneralHelp(CommandSender user) {
 
-    public static String std_help, admin_help, comp_help;
+        StringBuilder out = new StringBuilder();
+        List<String> commands = EvenMoreFish.msgs.getGeneralHelp();
 
-    // puts values into the command dictionaries for later use in /emf help and what not
-    public static void loadValues() {
+        String escape = "\n";
+        if (EvenMoreFish.permission != null && user != null) {
+            for (int i=0; i<commands.size(); i++) {
+                if (i == commands.size()-1) escape = "";
+                if (commands.get(i).contains("/emf admin")) {
+                    if (EvenMoreFish.permission.has(user, "emf.admin")) out.append(FishUtils.translateHexColorCodes(EvenMoreFish.msgs.getSTDPrefix() + commands.get(i) + escape));
+                } else if (commands.get(i).contains("/emf top")) {
+                    if (EvenMoreFish.permission.has(user, "emf.top")) out.append(FishUtils.translateHexColorCodes(EvenMoreFish.msgs.getSTDPrefix() + commands.get(i) + escape));
+                } else if (commands.get(i).contains("/emf shop")) {
+                    if (EvenMoreFish.permission.has(user, "emf.shop")) out.append(FishUtils.translateHexColorCodes(EvenMoreFish.msgs.getSTDPrefix() + commands.get(i) + escape));
+                } else out.append(FishUtils.translateHexColorCodes(EvenMoreFish.msgs.getSTDPrefix() + commands.get(i) + escape));
+            }
+        } else {
+            for (int i=0; i<commands.size(); i++) {
+                if (i == commands.size()-1) escape = "";
+                out.append(FishUtils.translateHexColorCodes(EvenMoreFish.msgs.getSTDPrefix() + commands.get(i) + escape));
+            }
+        }
 
-        cmdDictionary.put("emf admin", "管理员指令帮助页面。");
-        cmdDictionary.put("emf help", "将这个页面展示给你。");
-        cmdDictionary.put("emf shop", "开启一个商店来售卖你的鱼。");
-        cmdDictionary.put("emf top", "显示正在进行的比赛的排行榜。");
-
-        adminDictionary.put("emf admin competition <start/end> <time(seconds)>", "开始或结束一场比赛");
-        adminDictionary.put("emf admin reload", "重新加载此插件的配置文件");
-        adminDictionary.put("emf admin version", "显示插件信息。");
-
-        compDictionary.put("emf admin competition start <time<seconds>", "开始一场特定时间长度的比赛");
-        compDictionary.put("emf admin competition end <time<seconds>", "（如果有正在进行的比赛的话）结束当前的比赛");
-
-        std_help = formString(cmdDictionary);
-        admin_help = formString(adminDictionary);
-        comp_help = formString(compDictionary);
-
-        // gc
-        cmdDictionary = null;
-        adminDictionary = null;
-        compDictionary = null;
+        return out.toString();
 
     }
 
-    public static String formString(Map<String, String> dictionary) {
+    public static String formCompetitionHelp() {
 
         StringBuilder out = new StringBuilder();
+        List<String> commands = EvenMoreFish.msgs.getCompetitionHelp();
 
-        out.append(FishUtils.translateHexColorCodes(EvenMoreFish.msgs.getSTDPrefix() + "----- &a&lEvenMoreFish &r-----\n"));
+        String escape = "\n";
+        for (int i=0; i<commands.size(); i++) {
+            if (i == commands.size()-1) escape = "";
+            out.append(FishUtils.translateHexColorCodes(EvenMoreFish.msgs.getSTDPrefix() + commands.get(i) + escape));
+        }
 
-        for (String s : dictionary.keySet()) {
-            // we pass a null into here since there's no need to use placeholders in a help message.
-            out.append(new Message().setCMD(s).setDesc(dictionary.get(s)).setMSG(EvenMoreFish.msgs.getEMFHelp()).toString()).append("\n");
+        return out.toString();
+
+    }
+
+    public static String formAdminHelp() {
+
+        StringBuilder out = new StringBuilder();
+        List<String> commands = EvenMoreFish.msgs.getAdminHelp();
+
+        String escape = "\n";
+        for (int i=0; i<commands.size(); i++) {
+            if (i == commands.size()-1) escape = "";
+            out.append(FishUtils.translateHexColorCodes(EvenMoreFish.msgs.getSTDPrefix() + commands.get(i) + escape));
         }
 
         return out.toString();

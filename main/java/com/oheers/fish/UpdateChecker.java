@@ -1,6 +1,5 @@
 package com.oheers.fish;
 
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -28,7 +27,7 @@ public class UpdateChecker {
             version = ((JSONObject) new JSONParser().parse(new Scanner(new URL("https://api.spigotmc.org/simple/0.1/index.php?action=getResource&id=" + resourceID).openStream()).nextLine())).get("current_version").toString();
         } catch (Exception ignored) {
             version = plugin.getDescription().getVersion();
-            Bukkit.getLogger().log(Level.WARNING, "EvenMoreFish 从 Spigot 网站检查更新失败，你可以到 https://www.spigotmc.org/resources/evenmorefish.91310/updates 手动检查更新");
+            EvenMoreFish.logger.log(Level.WARNING, "EvenMoreFish 从 Spigot 网站检查更新失败，你可以到 https://www.spigotmc.org/resources/evenmorefish.91310/updates 手动检查更新");
         }
 
         return version;
