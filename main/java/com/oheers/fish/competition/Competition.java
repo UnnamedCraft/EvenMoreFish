@@ -149,10 +149,6 @@ public class Competition {
                             if (EvenMoreFish.msgs.getFirstPlaceNotification() != null) {
                                 Message message = new Message()
                                         .setMSG(EvenMoreFish.msgs.getFirstPlaceNotification())
-                                        .setLength(Float.toString(fish.getLength()))
-                                        .setRarityColour(fish.getRarity().getColour())
-                                        .setFishCaught(fish.getName())
-                                        .setRarity(fish.getRarity().getValue())
                                         .setPlayer(fisher.getName());
                                 FishUtils.broadcastFishMessage(message, EvenMoreFish.msgs.doFirstPlaceActionbar());
                             }
@@ -195,10 +191,6 @@ public class Competition {
                         if (EvenMoreFish.msgs.doFirstPlaceNotification()) {
                             Message message = new Message()
                                     .setMSG(EvenMoreFish.msgs.getFirstPlaceNotification())
-                                    .setRarity(fish.getRarity().getValue())
-                                    .setRarityColour(fish.getRarity().getColour())
-                                    .setFishCaught(fish.getName())
-                                    .setLength(Float.toString(fish.getLength()))
                                     .setPlayer(fisher.getName());
                             FishUtils.broadcastFishMessage(message, EvenMoreFish.msgs.doFirstPlaceActionbar());
                         }
@@ -216,10 +208,6 @@ public class Competition {
                         if (EvenMoreFish.msgs.doFirstPlaceNotification()) {
                             Message message = new Message()
                                     .setMSG(EvenMoreFish.msgs.getFirstPlaceNotification())
-                                    .setFishCaught(fish.getName())
-                                    .setRarityColour(fish.getRarity().getColour())
-                                    .setLength(Float.toString(fish.getLength()))
-                                    .setRarity(fish.getRarity().getValue())
                                     .setPlayer(fisher.getName());
                             FishUtils.broadcastFishMessage(message, EvenMoreFish.msgs.doFirstPlaceActionbar());
                         }

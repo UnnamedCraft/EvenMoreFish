@@ -149,7 +149,7 @@ public class Messages {
     }
 
     public String competitionNotRunning() {
-        return getErrorPrefix() + config.getString("no-competition-running");
+        return getErrorPrefix() + "现在没有竞争对手";
     }
 
     public String getNotEnoughPlayers() {
