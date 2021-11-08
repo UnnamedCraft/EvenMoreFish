@@ -1,19 +1,23 @@
 package com.oheers.fish.config;
 
 import com.oheers.fish.EvenMoreFish;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
 import java.util.logging.Level;
 
 public class MainConfig {
 
-    private FileConfiguration config = Bukkit.getPluginManager().getPlugin("EvenMoreFish").getConfig();
+    private FileConfiguration config = JavaPlugin.getProvidingPlugin(getClass()).getConfig();
 
     public int configVersion() {
         return config.getInt("config-version");
+    }
+
+    public String getLocale() {
+        return config.getString("locale", "en");
     }
 
     public int getCompetitionDuration() {
@@ -37,11 +41,11 @@ public class MainConfig {
     }
 
     public boolean regionWhitelist() {
-        return config.getStringList("allowed-regions").size() != 0;
+        return !config.getStringList("allowed-regions").isEmpty();
     }
 
     public boolean worldWhitelist() {
-        return config.getStringList("allowed-worlds").size() != 0;
+        return !config.getStringList("allowed-worlds").isEmpty();
     }
 
     public List<String> getAllowedRegions() {
