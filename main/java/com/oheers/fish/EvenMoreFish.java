@@ -5,7 +5,6 @@ import com.oheers.fish.competition.Competition;
 import com.oheers.fish.competition.CompetitionQueue;
 import com.oheers.fish.competition.JoinChecker;
 import com.oheers.fish.config.*;
-import com.oheers.fish.config.messages.MessageFile;
 import com.oheers.fish.config.messages.Messages;
 import com.oheers.fish.database.Database;
 import com.oheers.fish.events.FishEatEvent;
@@ -40,8 +39,6 @@ public class EvenMoreFish extends JavaPlugin {
 
     public static FishFile fishFile;
     public static RaritiesFile raritiesFile;
-    public static MessageFile messageFile;
-    public static CompetitionFile competitionFile;
 
     public static Messages msgs;
     public static MainConfig mainConfig;
@@ -71,22 +68,22 @@ public class EvenMoreFish extends JavaPlugin {
     public static final int METRIC_ID = 11054;
 
     public static final int MSG_CONFIG_VERSION = 8;
-    public static final int MAIN_CONFIG_VERSION = 8;
+    public static final int MAIN_CONFIG_VERSION = 9;
     public static final int COMP_CONFIG_VERSION = 1;
 
+    @Override
     public void onEnable() {
-
         logger = getLogger();
 
-        mainConfig = new MainConfig();
+        getConfig().options().copyDefaults();
+        saveDefaultConfig();
+
+        mainConfig = new MainConfig(this);
+        msgs = new Messages(this);
 
         fishFile = new FishFile(this);
         raritiesFile = new RaritiesFile(this);
-        messageFile = new MessageFile(this);
-        competitionFile = new CompetitionFile(this);
-
-        msgs = new Messages();
-        competitionConfig = new CompetitionConfig();
+        competitionConfig = new CompetitionConfig(this);
 
         if (mainConfig.isEconomyEnabled()) {
             // could not setup economy.
@@ -126,9 +123,6 @@ public class EvenMoreFish extends JavaPlugin {
         listeners();
         commands();
 
-        getConfig().options().copyDefaults();
-        saveDefaultConfig();
-
         AutoRunner.init();
 
         wgPlugin = getWorldGuard();
@@ -153,6 +147,7 @@ public class EvenMoreFish extends JavaPlugin {
 
     }
 
+    @Override
     public void onDisable() {
 
         terminateSellGUIS();
@@ -253,9 +248,9 @@ public class EvenMoreFish extends JavaPlugin {
         HandlerList.unregisterAll(McMMOTreasureEvent.getInstance());
         optionalListeners();
 
-        mainConfig = new MainConfig();
-        msgs = new Messages();
-        competitionConfig = new CompetitionConfig();
+        mainConfig.reload();
+        msgs.reload();
+        competitionConfig.reload();
 
         competitionQueue.load();
     }
@@ -286,7 +281,7 @@ public class EvenMoreFish extends JavaPlugin {
             getLogger().log(Level.WARNING, "你的 messages.yml 不是最新的。此插件自动增加了新的配置功能，但是你也许需要编辑它们" +
                     "才能配合你的服务器使用。");
 
-            EvenMoreFish.messageFile.reload();
+            msgs.reload();
         }
 
         if (mainConfig.configVersion() < MAIN_CONFIG_VERSION) {
@@ -302,7 +297,7 @@ public class EvenMoreFish extends JavaPlugin {
                     "最新的配置文件的话，你无法自定义它们。要更新的话，要么删除你的 competitions.yml 文件并重启服务器来创建一个全新的，" +
                     "要么浏览最近的更新，自行添加丢失的部分。https://www.spigotmc.org/resources/evenmorefish.91310/updates/");
 
-            EvenMoreFish.competitionFile.reload();
+            competitionConfig.reload();
         }
     }
 
