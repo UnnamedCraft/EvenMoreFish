@@ -128,7 +128,7 @@ public class FishingProcessor implements Listener {
         try {
             competitionCheck(fish.clone(), event.getPlayer());
         } catch (CloneNotSupportedException e) {
-            EvenMoreFish.logger.log(Level.SEVERE, "Failed to create a clone of: " + fish);
+            EvenMoreFish.logger.log(Level.SEVERE, "创建其副本失败：" + fish);
             e.printStackTrace();
         }
 
@@ -207,7 +207,7 @@ public class FishingProcessor implements Listener {
         }
 
         if (allowedRarities.isEmpty()) {
-            EvenMoreFish.logger.log(Level.SEVERE, "There are no rarities for the user " + fisher.getName() + " to fish. They have received no fish.");
+            EvenMoreFish.logger.log(Level.SEVERE, "用户 " + fisher.getName() + " 无法钓起任何稀有度的鱼。他们将不会收到鱼。");
             return null;
         }
 
