@@ -42,6 +42,12 @@ public class EvenMoreFish extends JavaPlugin {
 
     public static FishFile fishFile;
     public static RaritiesFile raritiesFile;
+<<<<<<< HEAD
+    public static MessageFile messageFile;
+    public static CompetitionFile competitionFile;
+    public static ConfigReader xmas2021Config;
+=======
+>>>>>>> master
 
     public static Messages msgs;
     public static MainConfig mainConfig;
@@ -64,6 +70,15 @@ public class EvenMoreFish extends JavaPlugin {
 
     public static Logger logger;
 
+<<<<<<< HEAD
+    public static ArrayList<SellGUI> guis;
+
+    // this is for pre-deciding a rarity and running particles if it will be chosen
+    // it's a work-in-progress solution and probably won't stick.
+    public static Map<UUID, Rarity> decidedRarities;
+
+=======
+>>>>>>> master
     public static boolean isUpdateAvailable;
 
     public static WorldGuardPlugin wgPlugin;
@@ -78,6 +93,12 @@ public class EvenMoreFish extends JavaPlugin {
 
     @Override
     public void onEnable() {
+<<<<<<< HEAD
+
+        guis = new ArrayList<>();
+        decidedRarities = new HashMap<>();
+=======
+>>>>>>> master
         logger = getLogger();
 
         getConfig().options().copyDefaults();
@@ -88,7 +109,17 @@ public class EvenMoreFish extends JavaPlugin {
 
         fishFile = new FishFile(this);
         raritiesFile = new RaritiesFile(this);
+<<<<<<< HEAD
+        messageFile = new MessageFile(this);
+        competitionFile = new CompetitionFile(this);
+        xmas2021Config = new ConfigReader(this);
+
+        msgs = new Messages();
+        mainConfig = new MainConfig();
+        competitionConfig = new CompetitionConfig();
+=======
         competitionConfig = new CompetitionConfig(this);
+>>>>>>> master
 
         if (mainConfig.isEconomyEnabled()) {
             // could not setup economy.
