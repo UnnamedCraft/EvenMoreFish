@@ -5,15 +5,15 @@ import com.oheers.fish.xmas2021.Xmas2021;
 import org.bukkit.block.Biome;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.logging.Level;
 
 public class Names {
 
     // Gets all the fish names.
     Set<String> rarities, fishSet, fishList;
+
+    public boolean regionCheck;
 
     FileConfiguration fishConfiguration, rarityConfiguration;
 
@@ -51,12 +51,15 @@ public class Names {
                 Fish canvas = new Fish(r, fish);
                 canvas.setConfigurationFile(fishConfiguration);
                 canvas.setBiomes(getBiomes(fish, r.getValue()));
+                canvas.setAllowedRegions(getRegions(fish, r.getValue()));
                 canvas.setGlowing(getGlowing(fish, r.getValue()));
                 canvas.setPermissionNode(permissionCheck(fish, rarity));
                 weightCheck(canvas, fish, r, rarity);
                 fishQueue.add(canvas);
 
                 if (isXmas2021) xmas2021Check(canvas);
+
+                if (canvas.getAllowedRegions().size() > 0) regionCheck = true;
 
             }
 
@@ -105,10 +108,19 @@ public class Names {
         List<Biome> biomes = new ArrayList<>();
 
         for (String biome : this.fishConfiguration.getStringList("fish." + rarity + "." + name + ".biomes")) {
-            biomes.add(Biome.valueOf(biome));
+            try {
+                biomes.add(Biome.valueOf(biome));
+            } catch (IllegalArgumentException iae) {
+                EvenMoreFish.logger.log(Level.SEVERE, biome + " is not a valid biome, found when loading in: " + name);
+            }
         }
 
         return biomes;
+    }
+
+    private List<String> getRegions(String name, String rarity) {
+        // returns the regions found in the "allowed-regions:" section of the fish.yml
+        return new ArrayList<>(this.fishConfiguration.getStringList("fish." + rarity + "." + name + ".allowed-regions"));
     }
 
     private void weightCheck(Fish fishObject, String name, Rarity rarityObject, String rarity) {

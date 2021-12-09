@@ -3,8 +3,6 @@ package com.oheers.fish.fishing;
 import com.oheers.fish.EvenMoreFish;
 import com.oheers.fish.FishUtils;
 import com.oheers.fish.api.EMFFishEvent;
-import com.oheers.fish.xmas2021.ParticleEngine;
-import com.oheers.fish.xmas2021.Xmas2021;
 import com.oheers.fish.competition.Competition;
 import com.oheers.fish.competition.reward.Reward;
 import com.oheers.fish.config.messages.Message;
@@ -12,9 +10,11 @@ import com.oheers.fish.database.Database;
 import com.oheers.fish.database.FishReport;
 import com.oheers.fish.fishing.items.Fish;
 import com.oheers.fish.fishing.items.Rarity;
+import com.oheers.fish.xmas2021.ParticleEngine;
+import com.oheers.fish.xmas2021.Xmas2021;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Biome;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,14 +23,8 @@ import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-<<<<<<< HEAD
-import java.util.Objects;
-=======
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
->>>>>>> master
 import java.util.logging.Level;
 
 public class FishingProcessor implements Listener {
@@ -59,207 +53,147 @@ public class FishingProcessor implements Listener {
             return;
         }
 
-        if (event.getState() != PlayerFishEvent.State.CAUGHT_FISH) {
-            return;
-        }
-
         if (!competitionOnlyCheck()) {
             return;
         }
 
-        if (!FishUtils.checkRegion(event.getHook().getLocation())) {
-            return;
-        }
+        if (event.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
 
-        if (!FishUtils.checkWorld(event.getHook().getLocation())) {
-            return;
-        }
-
-        Player player = event.getPlayer();
-
-        Fish fish = getFish(randomWeightedRarity(player), event.getHook().getLocation().getBlock().getBiome(), player);
-        if (fish == null) return;
-        fish.setFisherman(player.getUniqueId());
-        fish.init();
-        // puts all the fish information into a format that Messages.renderMessage() can print out nicely
-
-<<<<<<< HEAD
-                    String length = Float.toString(fish.getLength());
-                    // Translating the colours because some servers store colour in their fish name
-                    String name = FishUtils.translateHexColorCodes(fish.getName());
-                    String rarityName = FishUtils.translateHexColorCodes(fish.getRarity().getValue());
-=======
-        String length = Float.toString(fish.getLength());
-        // Translating the colours because some servers store colour in their fish name
-        String name = FishUtils.translateHexColorCodes(fish.getName());
-        String rarity = FishUtils.translateHexColorCodes(fish.getRarity().getValue());
->>>>>>> master
-
-        if (fish.hasFishRewards()) {
-            for (Reward fishReward : fish.getFishRewards()) {
-                fishReward.run(player);
+            if (!FishUtils.checkRegion(event.getHook().getLocation(), EvenMoreFish.mainConfig.getAllowedRegions())) {
+                return;
             }
-        }
 
-        // checks if the fish can have durability, and if it's set in the config it receives random durability
-        if (checkBreakable(fish.getType().getType())) fish.randomBreak();
+            if (!FishUtils.checkWorld(event.getHook().getLocation())) {
+                return;
+            }
 
-        EMFFishEvent cEvent = new EMFFishEvent(fish, event.getPlayer());
-        Bukkit.getPluginManager().callEvent(cEvent);
+            Player player = event.getPlayer();
 
-<<<<<<< HEAD
-                    Message msg = new Message()
-                            .setMSG(EvenMoreFish.msgs.getFishCaught())
-                            .setPlayer(player.getName())
-                            .setRarityColour(fish.getRarity().getColour())
-                            .setLength(length)
-                            .setRarity(rarityName)
-                            .setReceiver(player);
-=======
-        Message msg = new Message()
-                .setMSG(EvenMoreFish.msgs.getFishCaught())
-                .setPlayer(player.getName())
-                .setRarityColour(fish.getRarity().getColour())
-                .setLength(length)
-                .setRarity(rarity)
-                .setReceiver(player);
->>>>>>> master
+            Fish fish = getFish(randomWeightedRarity(player), event.getHook().getLocation(), player);
+            if (fish == null) return;
+            fish.setFisherman(player.getUniqueId());
+            fish.init();
+            // puts all the fish information into a format that Messages.renderMessage() can print out nicely
 
-        if (fish.getDisplayName() != null) msg.setFishCaught(fish.getDisplayName());
-        else msg.setFishCaught(name);
+            String length = Float.toString(fish.getLength());
+            // Translating the colours because some servers store colour in their fish name
+            String name = FishUtils.translateHexColorCodes(fish.getName());
+            String rarity = FishUtils.translateHexColorCodes(fish.getRarity().getValue());
 
-<<<<<<< HEAD
-                    if (fish.getRarity().getDisplayName() != null) msg.setRarity(fish.getRarity().getDisplayName());
-                    else msg.setRarity(rarityName);
-=======
-        if (fish.getRarity().getDisplayName() != null) msg.setRarity(fish.getRarity().getDisplayName());
-        else msg.setRarity(rarity);
->>>>>>> master
+            if (fish.hasFishRewards()) {
+                for (Reward fishReward : fish.getFishRewards()) {
+                    fishReward.run(player);
+                }
+            }
 
-        if (fish.getLength() != -1) {
-            msg.setMSG(EvenMoreFish.msgs.getFishCaught());
-        } else {
-            msg.setMSG(EvenMoreFish.msgs.getLengthlessFishCaught());
-        }
+            // checks if the fish can have durability, and if it's set in the config it receives random durability
+            if (checkBreakable(fish.getType().getType())) fish.randomBreak();
 
-        // Gets whether it's a serverwide announce or not
-        if (fish.getRarity().getAnnounce()) {
-            // should we only broadcast this information to rod holders?
-            FishUtils.broadcastFishMessage(msg, false);
-        } else {
-            // sends it to just the fisher
-            player.sendMessage(msg.toString());
-        }
+            EMFFishEvent cEvent = new EMFFishEvent(fish, event.getPlayer());
+            Bukkit.getPluginManager().callEvent(cEvent);
 
-        try {
-            competitionCheck(fish.clone(), event.getPlayer());
-        } catch (CloneNotSupportedException e) {
-            EvenMoreFish.logger.log(Level.SEVERE, "创建其副本失败：" + fish);
-            e.printStackTrace();
-        }
+            Message msg = new Message()
+                    .setMSG(EvenMoreFish.msgs.getFishCaught())
+                    .setPlayer(player.getName())
+                    .setRarityColour(fish.getRarity().getColour())
+                    .setLength(length)
+                    .setRarity(rarity)
+                    .setReceiver(player);
 
-        // replaces the fishing item with a custom evenmorefish fish.
-        Item nonCustom = (Item) event.getCaught();
-        if (nonCustom != null) {
-            if (fish.getType().getType() != Material.AIR) nonCustom.setItemStack(fish.give());
-            else nonCustom.remove();
-        }
+            if (fish.getDisplayName() != null) msg.setFishCaught(fish.getDisplayName());
+            else msg.setFishCaught(name);
 
-        if (EvenMoreFish.mainConfig.isDatabaseOnline()) {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    try {
+            if (fish.getRarity().getDisplayName() != null) msg.setRarity(fish.getRarity().getDisplayName());
+            else msg.setRarity(rarity);
 
-<<<<<<< HEAD
-                    if (fish.getRarity().isXmas2021()) {
-                        player.sendMessage(FishUtils.translateHexColorCodes(EvenMoreFish.msgs.getSTDPrefix() + "Wishing you a merry Christmas, from Oheers."));
-                    }
+            if (fish.getLength() != -1) {
+                msg.setMSG(EvenMoreFish.msgs.getFishCaught());
+            } else {
+                msg.setMSG(EvenMoreFish.msgs.getLengthlessFishCaught());
+            }
 
-                    // replaces the fishing item with a custom evenmorefish fish.
-                    Item nonCustom = (Item) event.getCaught();
-                    if (nonCustom != null) {
-                        if (fish.getType().getType() != Material.AIR) nonCustom.setItemStack(fish.give());
-                        else nonCustom.remove();
-                    }
+            // Gets whether it's a serverwide announce or not
+            if (fish.getRarity().getAnnounce()) {
+                // should we only broadcast this information to rod holders?
+                FishUtils.broadcastFishMessage(msg, false);
+            } else {
+                // sends it to just the fisher
+                player.sendMessage(msg.toString());
+            }
 
-                    if (EvenMoreFish.mainConfig.isDatabaseOnline()) {
-                        new BukkitRunnable() {
-                            @Override
-                            public void run() {
-                                try {
+            try {
+                competitionCheck(fish.clone(), event.getPlayer());
+            } catch (CloneNotSupportedException e) {
+                EvenMoreFish.logger.log(Level.SEVERE, "Failed to create a clone of: " + fish);
+                e.printStackTrace();
+            }
 
-                                    // increases the fish fished count if the fish is already in the db
-                                    if (Database.hasFish(fish.getName())) {
-                                        Database.fishIncrease(fish.getName());
+            // replaces the fishing item with a custom evenmorefish fish.
+            Item nonCustom = (Item) event.getCaught();
+            if (nonCustom != null) {
+                if (fish.getType().getType() != Material.AIR) nonCustom.setItemStack(fish.give());
+                else nonCustom.remove();
+            }
 
-                                        // sets the new leader in top fish, if the player has fished a record fish
-                                        if (Database.getTopLength(fish.getName()) < fish.getLength()) {
-                                            Database.newTopSpot(player, fish.getName(), fish.getLength());
-                                        }
-                                    } else {
-                                        // the database doesn't contain the fish yet
-                                        Database.add(fish, player);
-                                    }
+            if (EvenMoreFish.mainConfig.isDatabaseOnline()) {
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        try {
 
-                                    boolean foundReport = false;
+                            // increases the fish fished count if the fish is already in the db
+                            if (Database.hasFish(fish.getName())) {
+                                Database.fishIncrease(fish.getName());
 
-                                    if (EvenMoreFish.fishReports.containsKey(player.getUniqueId())) {
-                                        for (FishReport report : EvenMoreFish.fishReports.get(player.getUniqueId())) {
-                                            if (report.getName().equals(fish.getName()) && report.getRarity().equals(fish.getRarity().getValue())) {
-                                                report.addFish(fish);
-                                                foundReport = true;
-                                            }
-                                        }
-                                    }
-
-                                    if (!foundReport) {
-                                        EvenMoreFish.fishReports.get(player.getUniqueId()).add(new FishReport(fish.getRarity().getValue(), fish.getName(), fish.getLength(), 1));
-                                    }
-
-                                } catch (SQLException throwables) {
-                                    throwables.printStackTrace();
+                                // sets the new leader in top fish, if the player has fished a record fish
+                                if (Database.getTopLength(fish.getName()) < fish.getLength()) {
+                                    Database.newTopSpot(player, fish.getName(), fish.getLength());
                                 }
-=======
-                        // increases the fish fished count if the fish is already in the db
-                        if (Database.hasFish(fish.getName())) {
-                            Database.fishIncrease(fish.getName());
-
-                            // sets the new leader in top fish, if the player has fished a record fish
-                            if (Database.getTopLength(fish.getName()) < fish.getLength()) {
-                                Database.newTopSpot(player, fish.getName(), fish.getLength());
->>>>>>> master
+                            } else {
+                                // the database doesn't contain the fish yet
+                                Database.add(fish, player);
                             }
-                        } else {
-                            // the database doesn't contain the fish yet
-                            Database.add(fish.getName(), player, fish.getLength());
+
+                            boolean foundReport = false;
+
+                            if (EvenMoreFish.fishReports.containsKey(player.getUniqueId())) {
+                                for (FishReport report : EvenMoreFish.fishReports.get(player.getUniqueId())) {
+                                    if (report.getName().equals(fish.getName()) && report.getRarity().equals(fish.getRarity().getValue())) {
+                                        report.addFish(fish);
+                                        foundReport = true;
+                                    }
+                                }
+                            }
+
+                            if (!foundReport) {
+                                EvenMoreFish.fishReports.get(player.getUniqueId()).add(new FishReport(fish.getRarity().getValue(), fish.getName(), fish.getLength(), 1));
+                            }
+
+                        } catch (SQLException throwables) {
+                            throwables.printStackTrace();
                         }
-
-                    } catch (SQLException throwables) {
-                        throwables.printStackTrace();
                     }
-                }
-<<<<<<< HEAD
-            } else if (event.getState() == PlayerFishEvent.State.FISHING) {
-                if (!EvenMoreFish.decidedRarities.containsKey(event.getPlayer().getUniqueId())) {
-                    EvenMoreFish.decidedRarities.put(event.getPlayer().getUniqueId(), randomWeightedRarity(event.getPlayer()));
+                }.runTaskAsynchronously(EvenMoreFish.getProvidingPlugin(EvenMoreFish.class));
+            }
+        } else if (event.getState() == PlayerFishEvent.State.FISHING) {
+            if (!EvenMoreFish.decidedRarities.containsKey(event.getPlayer().getUniqueId())) {
+                EvenMoreFish.decidedRarities.put(event.getPlayer().getUniqueId(), randomWeightedRarity(event.getPlayer()));
+            }
+
+            if (EvenMoreFish.decidedRarities.get(event.getPlayer().getUniqueId()).isXmas2021()) {
+
+                if (!Objects.equals(EvenMoreFish.xmas2021Config.getParticleMessage(), "none")) {
+                    event.getPlayer().sendMessage(FishUtils.translateHexColorCodes(EvenMoreFish.xmas2021Config.getParticleMessage()));
                 }
 
-                if (EvenMoreFish.decidedRarities.get(event.getPlayer().getUniqueId()).isXmas2021()) {
-
-                    if (!Objects.equals(EvenMoreFish.xmas2021Config.getParticleMessage(), "none")) {
-                        event.getPlayer().sendMessage(FishUtils.translateHexColorCodes(EvenMoreFish.xmas2021Config.getParticleMessage()));
-                    }
-
-                    if (EvenMoreFish.xmas2021Config.doXmas2021Particles()) {
-                        ParticleEngine.renderParticles(event.getHook());
-                    }
+                if (EvenMoreFish.xmas2021Config.doXmas2021Particles()) {
+                    ParticleEngine.renderParticles(event.getHook());
                 }
-            } else if (event.getState() == PlayerFishEvent.State.REEL_IN) {
-                // For a failed attempt the player needs to have triggered a FISHING which generates a pre-decided rarity.
-                if (EvenMoreFish.decidedRarities.get(event.getPlayer().getUniqueId()).isXmas2021()) {
-                    EvenMoreFish.decidedRarities.remove(event.getPlayer().getUniqueId());
-                }
+            }
+        } else if (event.getState() == PlayerFishEvent.State.REEL_IN) {
+            // For a failed attempt the player needs to have triggered a FISHING which generates a pre-decided rarity.
+            if (EvenMoreFish.decidedRarities.get(event.getPlayer().getUniqueId()).isXmas2021()) {
+                EvenMoreFish.decidedRarities.remove(event.getPlayer().getUniqueId());
             }
         }
     }
@@ -273,16 +207,12 @@ public class FishingProcessor implements Listener {
                     return false;
                 }
             }
-=======
-            }.runTaskAsynchronously(EvenMoreFish.getProvidingPlugin(EvenMoreFish.class));
->>>>>>> master
         }
         // it's ok to proceed with the selected rarity
         return true;
     }
 
     public static Rarity randomWeightedRarity(Player fisher) {
-<<<<<<< HEAD
 
         if (EvenMoreFish.decidedRarities.containsKey(fisher.getUniqueId())) {
             Rarity chosenRarity = EvenMoreFish.decidedRarities.get(fisher.getUniqueId());
@@ -290,14 +220,11 @@ public class FishingProcessor implements Listener {
             return chosenRarity;
         }
 
-=======
->>>>>>> master
         // Loads all the rarities
         List<Rarity> allowedRarities = new ArrayList<>();
 
         if (EvenMoreFish.permission != null) {
             for (Rarity rarity : EvenMoreFish.fishCollection.keySet()) {
-<<<<<<< HEAD
                 boolean xmas2021Pass = false;
 
                 if (rarity.isXmas2021()) {
@@ -317,12 +244,10 @@ public class FishingProcessor implements Listener {
                         allowedRarities.add(rarity);
                     }
                 } else if (xmas2021Pass) {
-=======
-                if (rarity.getPermission() == null || EvenMoreFish.permission.has(fisher, rarity.getPermission())) {
->>>>>>> master
                     allowedRarities.add(rarity);
                 }
             }
+
         } else {
             for (Rarity r : EvenMoreFish.fishCollection.keySet()) {
                 if (r.isXmas2021()) {
@@ -351,8 +276,8 @@ public class FishingProcessor implements Listener {
             if (r <= 0.0) break;
         }
 
-        if (allowedRarities.isEmpty()) {
-            EvenMoreFish.logger.log(Level.SEVERE, "用户 " + fisher.getName() + " 无法钓起任何稀有度的鱼。他们将不会收到鱼。");
+        if (allowedRarities.size() == 0) {
+            EvenMoreFish.logger.log(Level.SEVERE, "用户 " + fisher.getName() + " 没有任何稀有度的鱼可供垂钓。他们将不会收到鱼。");
             return null;
         }
 
@@ -376,7 +301,7 @@ public class FishingProcessor implements Listener {
         return fishList.get(idx);
     }
 
-    public static Fish getFish(Rarity r, Biome b, Player p) {
+    public static Fish getFish(Rarity r, Location l, Player p) {
         if (r == null) return null;
         // will store all the fish that match the player's biome or don't discriminate biomes
 
@@ -386,8 +311,11 @@ public class FishingProcessor implements Listener {
         if (EvenMoreFish.fishCollection.get(r) == null) r = randomWeightedRarity(p);
 
         if (r.isXmas2021()) {
-            return Xmas2021.getFish();
+            if (FishUtils.checkRegion(l, Xmas2021.getFish().getAllowedRegions())) {
+                return Xmas2021.getFish();
+            }
         }
+
 
         for (Fish f : EvenMoreFish.fishCollection.get(r)) {
 
@@ -397,14 +325,20 @@ public class FishingProcessor implements Listener {
                 }
             }
 
-            if (f.getBiomes().contains(b) || f.getBiomes().isEmpty()) {
-                available.add(f);
+            if (!FishUtils.checkRegion(l, f.getAllowedRegions())) {
+                continue;
             }
+
+            if (l.getWorld() != null) {
+                if (f.getBiomes().contains(l.getBlock().getBiome()) || f.getBiomes().isEmpty()) {
+                    available.add(f);
+                }
+            } else EvenMoreFish.logger.log(Level.SEVERE, "Could not get world for " + p.getUniqueId());
         }
 
         // if the config doesn't define any fish that can be fished in this biome.
         if (available.isEmpty()) {
-            EvenMoreFish.logger.log(Level.WARNING, "在 " + b.name() + " 生物群系中没有稀有度为 " + r.getValue() + " 的鱼可供垂钓。");
+            EvenMoreFish.logger.log(Level.WARNING, "此处没有稀有度为 " + r.getValue() + " 的鱼，它们可以在 (x=" + l.getX() + ", y=" + l.getY() + ", z=" + l.getZ() + ") 处垂钓。");
             return null;
         }
 

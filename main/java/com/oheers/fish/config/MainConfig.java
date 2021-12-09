@@ -49,10 +49,6 @@ public class MainConfig {
         return config.getBoolean("enabled");
     }
 
-    public boolean regionWhitelist() {
-        return !config.getStringList("allowed-regions").isEmpty();
-    }
-
     public boolean worldWhitelist() {
         return !config.getStringList("allowed-worlds").isEmpty();
     }
@@ -203,5 +199,9 @@ public class MainConfig {
 
     public String getPassword() {
         return config.getString("mysql.password");
+    }
+
+    public boolean blockPlacingHeads() {
+        return config.getBoolean("place-head-fish");
     }
 }

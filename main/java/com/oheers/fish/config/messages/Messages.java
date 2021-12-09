@@ -24,7 +24,7 @@ public class Messages {
         reload();
     }
 
-    public void reload() {
+	public void reload() {
         File messageFile = new File(this.plugin.getDataFolder(), "messages.yml");
 
         if (!messageFile.exists()) {
@@ -37,9 +37,10 @@ public class Messages {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            InputStream stream = this.plugin.getResource("locales" + File.separator + "messages_" + EvenMoreFish.mainConfig.getLocale() + ".yml");
+
+            InputStream stream = this.plugin.getResource("locales/messages_" + EvenMoreFish.mainConfig.getLocale() + ".yml");
             if (stream == null) {
-                stream = this.plugin.getResource("locales" + File.separator + "messages_en.yml");
+                stream = this.plugin.getResource("locales/messages_en.yml");
             }
             if (stream == null) {
                 EvenMoreFish.logger.log(Level.SEVERE, "Could not get resource for EvenMoreFish/messages.yml");
@@ -385,5 +386,11 @@ public class Messages {
         List<String> returning = config.getStringList("help-competition");
         if (returning.size() == 0) EvenMoreFish.logger.log(Level.WARNING, "Missing config value: \"help-competition\". [messages.yml]");
         return returning;
+    }
+
+    public String getPlaceFishBlocked() {
+        String returning = config.getString("place-fish-blocked");
+        if (returning != null) return returning;
+        else return getErrorPrefix() + "You cannot place this fish.";
     }
 }

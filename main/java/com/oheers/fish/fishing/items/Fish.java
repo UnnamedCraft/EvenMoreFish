@@ -21,10 +21,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 
 public class Fish implements Cloneable {
@@ -35,6 +33,8 @@ public class Fish implements Cloneable {
     UUID fisherman;
     Float length;
 
+    boolean randomType = false;
+
     String displayName;
 
     String dyeColour;
@@ -44,6 +44,7 @@ public class Fish implements Cloneable {
     String eventType;
 
     List<Biome> biomes;
+    List<String> allowedRegions;
 
     String permissionNode;
 
@@ -76,6 +77,8 @@ public class Fish implements Cloneable {
     }
 
     public ItemStack give() {
+
+        if (randomType) this.type = setType();
 
         ItemStack fish = this.type;
 
@@ -239,10 +242,63 @@ public class Fish implements Cloneable {
         // The fish has item: material selected
         String mValue = configurationFile.getString("fish." + this.rarity.getValue() + "." + this.name + ".item.material");
         if (mValue != null) {
-            if (Material.getMaterial(mValue) == null) {
-                Bukkit.getLogger().log(Level.WARNING, this.name + " 无法加载材料: " + mValue);
+
+            Material m = Material.getMaterial(mValue.toUpperCase());
+            if (m == null) {
+                EvenMoreFish.logger.log(Level.SEVERE, this.name + " 无法加载材料: " + mValue);
+                m = Material.COD;
             }
-            return new ItemStack(Objects.requireNonNull(Material.getMaterial(mValue.toUpperCase())));
+
+            return new ItemStack(m);
+        }
+
+        Random rand = new Random();
+
+        List<String> lValues = configurationFile.getStringList("fish." + this.rarity.getValue() + "." + this.name + ".item.materials");
+        if (lValues.size() > 0) {
+
+            Material m = Material.getMaterial(lValues.get(rand.nextInt(lValues.size())).toUpperCase());
+            randomType = true;
+
+            if (m == null) {
+                EvenMoreFish.logger.log(Level.SEVERE, this.name + " has an incorrect material name in its materials list.");
+                for (String material : lValues) {
+                    if (Material.getMaterial(material.toUpperCase()) != null) {
+                        return new ItemStack(Objects.requireNonNull(Material.getMaterial(material.toUpperCase())));
+                    }
+                }
+
+                return new ItemStack(Material.COD);
+            } else {
+                return new ItemStack(m);
+            }
+        }
+
+        List<String> mhuValues = configurationFile.getStringList("fish." + this.rarity.getValue() + "." + this.name + ".item.multiple-head-uuid");
+        if (mhuValues.size() > 0) {
+
+            String uuid = mhuValues.get(rand.nextInt(mhuValues.size()));
+            randomType = true;
+
+            try {
+                ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
+                SkullMeta meta = (SkullMeta) skull.getItemMeta();
+                meta.setOwningPlayer(Bukkit.getOfflinePlayer(UUID.fromString(uuid)));
+                skull.setItemMeta(meta);
+                return skull;
+            } catch (IllegalArgumentException illegalArgumentException) {
+                EvenMoreFish.logger.log(Level.SEVERE, "Could not load uuid: " + uuid + " as a multiple-head-uuid option for " + this.name);
+                return new ItemStack(Material.COD);
+            }
+        }
+
+        List<String> mh64Values = configurationFile.getStringList("fish." + this.rarity.getValue() + "." + this.name + ".item.multiple-head-64");
+        if (mh64Values.size() > 0) {
+
+            String base64 = mh64Values.get(rand.nextInt(mh64Values.size()));
+            randomType = true;
+
+            return FishUtils.get(base64);
         }
 
         // The fish has no item type specified
@@ -302,6 +358,14 @@ public class Fish implements Cloneable {
         return biomes;
     }
 
+    public List<String> getAllowedRegions() {
+        return allowedRegions;
+    }
+
+    public void setAllowedRegions(List<String> allowedRegions) {
+        this.allowedRegions = allowedRegions;
+    }
+
     public void setGlowing(boolean glowing) {
         this.glowing = glowing;
     }
@@ -354,13 +418,14 @@ public class Fish implements Cloneable {
     public void randomBreak() {
         Damageable nonDamaged = (Damageable) type.getItemMeta();
 
-        // checking if the user has already set this item to have durability in fish.yml (possible future update)
-        //if (nonDamaged.hasDamage()) return;
+        int predefinedDamage = configurationFile.getInt("fish." + this.rarity.getValue() + "." + this.name + ".durability");
+        if (predefinedDamage != 0 && predefinedDamage <= 100) {
+            nonDamaged.setDamage((int) ((100-predefinedDamage)/100.0 * this.type.getType().getMaxDurability()));
+        } else {
+            int max = this.type.getType().getMaxDurability();
+            nonDamaged.setDamage((int) (Math.random() * (max + 1)));
+        }
 
-        int min = nonDamaged.getDamage();
-        int max = this.type.getType().getMaxDurability();
-
-        nonDamaged.setDamage((int) (Math.random() * (max - min + 1) + min));
         type.setItemMeta((ItemMeta) nonDamaged);
     }
 
